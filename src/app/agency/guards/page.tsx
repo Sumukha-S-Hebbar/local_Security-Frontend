@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
@@ -47,6 +46,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getApiBaseUrl } from '@/lib/get-api-url';
 
 
 type PaginatedGuardsResponse = {
@@ -87,7 +87,7 @@ type ApiCity = {
 
 async function fetchData<T>(url: string, token: string | undefined): Promise<T | null> {
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_DJANGO_API_URL || '';
+        const baseUrl = getApiBaseUrl();
         const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
         
         const response = await fetch(fullUrl, {
@@ -317,7 +317,7 @@ export default function AgencyGuardsPage() {
     }
 
     const token = localStorage.getItem('token');
-    const API_URL = `${process.env.NEXT_PUBLIC_DJANGO_API_URL}/agency/${loggedInOrg.code}/guards/add/`;
+    const API_URL = `${getApiBaseUrl()}/agency/${loggedInOrg.code}/guards/add/`;
 
     const payload = {
         ...values,
@@ -376,7 +376,7 @@ export default function AgencyGuardsPage() {
     }
     setIsRequestingSelfie(true);
     const token = localStorage.getItem('token');
-    const API_URL = `${process.env.NEXT_PUBLIC_DJANGO_API_URL}/agency/${loggedInOrg.code}/random_selfie/send_to_all/`;
+    const API_URL = `${getApiBaseUrl()}/agency/${loggedInOrg.code}/random_selfie/send_to_all/`;
 
     try {
       const response = await fetch(API_URL, {

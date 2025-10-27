@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -32,6 +31,7 @@ import {
 import { fetchData } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Organization, Incident } from '@/types';
+import { getApiBaseUrl } from '@/lib/get-api-url';
 
 
 const incidentTypes = [
@@ -215,7 +215,7 @@ export default function AgencyIncidentReportPage() {
         }
     }
     
-    const API_URL = `${process.env.NEXT_PUBLIC_DJANGO_API_URL}/agency/${loggedInOrg.code}/incident/${incident.id}/`;
+    const API_URL = `${getApiBaseUrl()}/agency/${loggedInOrg.code}/incident/${incident.id}/`;
 
     try {
         const response = await fetch(API_URL, {

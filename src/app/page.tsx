@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -29,6 +28,7 @@ import type { Organization, User, Subcontractor } from '@/types';
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
+import { getApiBaseUrl } from '@/lib/get-api-url';
 
 interface LoginResponse {
   token: string;
@@ -86,7 +86,7 @@ export default function RootPage() {
         throw new Error('Username and password are required.');
       }
 
-      const API_URL = `${process.env.NEXT_PUBLIC_DJANGO_API_URL}/users/auth/token/`;
+      const API_URL = `${getApiBaseUrl()}/users/auth/token/`;
 
       const response = await fetch(API_URL, {
         method: 'POST',

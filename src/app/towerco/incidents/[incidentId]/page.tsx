@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -25,6 +24,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { fetchData } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Organization } from '@/types';
+import { getApiBaseUrl } from '@/lib/get-api-url';
 
 type IncidentReport = {
     id: number;
@@ -215,7 +215,7 @@ export default function IncidentReportPage() {
     }
 
     try {
-        const API_URL = `${process.env.NEXT_PUBLIC_DJANGO_API_URL}/orgs/${loggedInOrg.code}/incident/${incidentIdParam}/`;
+        const API_URL = `${getApiBaseUrl()}/orgs/${loggedInOrg.code}/incident/${incidentIdParam}/`;
         const response = await fetch(API_URL, {
             method: 'PATCH',
             headers: {

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
@@ -57,6 +56,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchData } from '@/lib/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getApiBaseUrl } from '@/lib/get-api-url';
 
 
 const addSiteFormSchema = z.object({
@@ -443,7 +443,7 @@ export function SitesPageClient() {
     }
     
     const token = localStorage.getItem('token');
-    const API_URL = `${process.env.NEXT_PUBLIC_DJANGO_API_URL}/orgs/${loggedInOrg.code}/sites/${siteId}/assign-agency/`;
+    const API_URL = `${getApiBaseUrl()}/orgs/${loggedInOrg.code}/sites/${siteId}/assign-agency/`;
 
     try {
         const response = await fetch(API_URL, {
@@ -487,7 +487,7 @@ export function SitesPageClient() {
     }
     setIsAddingSite(true);
     const token = localStorage.getItem('token');
-    const API_URL = `${process.env.NEXT_PUBLIC_DJANGO_API_URL}/orgs/${loggedInOrg.code}/sites/add/`;
+    const API_URL = `${getApiBaseUrl()}/orgs/${loggedInOrg.code}/sites/add/`;
 
     try {
         const response = await fetch(API_URL, {

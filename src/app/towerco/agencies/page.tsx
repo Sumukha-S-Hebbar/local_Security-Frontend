@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useRef, Fragment, useCallback } from 'react';
@@ -42,6 +41,7 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { fetchData } from '@/lib/api';
+import { getApiBaseUrl } from '@/lib/get-api-url';
 
 
 const ITEMS_PER_PAGE = 10;
@@ -360,7 +360,7 @@ export default function TowercoAgenciesPage() {
         const token = localStorage.getItem('token');
 
         try {
-            const API_URL = `${process.env.NEXT_PUBLIC_DJANGO_API_URL}/orgs/${loggedInOrg.code}/security-agencies/add/`;
+            const API_URL = `${getApiBaseUrl()}/orgs/${loggedInOrg.code}/security-agencies/add/`;
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {

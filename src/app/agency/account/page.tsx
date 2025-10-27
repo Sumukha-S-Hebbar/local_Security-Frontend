@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -16,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getApiBaseUrl } from '@/lib/get-api-url';
 
 
 const passwordFormSchema = z.object({
@@ -77,7 +77,7 @@ export default function AgencyAccountPage() {
     const token = localStorage.getItem('token');
     
     try {
-        const API_URL = `${process.env.NEXT_PUBLIC_DJANGO_API_URL}/users/account/password/change/`;
+        const API_URL = `${getApiBaseUrl()}/users/account/password/change/`;
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
