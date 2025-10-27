@@ -138,7 +138,7 @@ export default function AgencySitesPage() {
     }
 
     try {
-        const response = await fetchData<PaginatedSitesResponse>(`/security/api/agency/${loggedInOrg.code}/sites/list/?${params.toString()}`, token);
+        const response = await fetchData<PaginatedSitesResponse>(`/agency/${loggedInOrg.code}/sites/list/?${params.toString()}`, token);
         if (status === 'Assigned') {
             setAssignedSites(response?.results || []);
             setAssignedSitesCount(response?.count || 0);
@@ -163,7 +163,7 @@ export default function AgencySitesPage() {
     const token = localStorage.getItem('token') || undefined;
 
     try {
-        const poResponse = await fetchData<{results: any[]}>(`/security/api/agency/${loggedInOrg.code}/patrol_officers/list/`, token);
+        const poResponse = await fetchData<{results: any[]}>(`/agency/${loggedInOrg.code}/patrol_officers/list/`, token);
         const formattedPOs = poResponse?.results.map((po): PatrollingOfficer => ({
             id: po.id,
             employee_id: po.employee_id,
@@ -179,7 +179,7 @@ export default function AgencySitesPage() {
         })) || [];
         setPatrollingOfficers(formattedPOs);
 
-        const unassignedGuardsResponse = await fetchData<{ results: Guard[] }>(`/security/api/agency/${loggedInOrg.code}/unassigned_guards/list/`, token);
+        const unassignedGuardsResponse = await fetchData<{ results: Guard[] }>(`/agency/${loggedInOrg.code}/unassigned_guards/list/`, token);
         setUnassignedGuards(unassignedGuardsResponse?.results || []);
 
     } catch (error) {
@@ -250,7 +250,7 @@ export default function AgencySitesPage() {
           if (!loggedInUser || !loggedInUser.country) return;
           const token = localStorage.getItem('token');
           const countryId = loggedInUser.country.id;
-          const url = `/security/api/regions/?country=${countryId}`;
+          const url = `/regions/?country=${countryId}`;
           try {
               const data = await fetchData<{ regions: ApiRegion[] }>(url, token || undefined);
               setFilterRegions(data?.regions || []);
@@ -270,7 +270,7 @@ export default function AgencySitesPage() {
           setLoading(true);
           const token = localStorage.getItem('token');
           const countryId = loggedInUser.country.id;
-          const url = `/security/api/cities/?country=${countryId}&region=${regionId}`;
+          const url = `/cities/?country=${countryId}&region=${regionId}`;
           try {
               const data = await fetchData<{ cities: ApiCity[] }>(url, token || undefined);
               setCities(data?.cities || []);
@@ -381,7 +381,7 @@ export default function AgencySitesPage() {
     }
 
     const token = localStorage.getItem('token');
-    const API_URL = `${process.env.NEXT_PUBLIC_DJANGO_API_URL}/security/api/agency/${loggedInOrg.code}/sites/${siteId}/assign_personnel/`;
+    const API_URL = `${process.env.NEXT_PUBLIC_DJANGO_API_URL}/agency/${loggedInOrg.code}/sites/${siteId}/assign_personnel/`;
 
     try {
         const response = await fetch(API_URL, {

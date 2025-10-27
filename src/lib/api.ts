@@ -1,9 +1,8 @@
 
-
 // A simple data fetching function
 export async function fetchData<T>(url: string, token?: string): Promise<T | null> {
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_DJANGO_API_URL || 'http://are.towerbuddy.tel:8000/security/api';
+        const baseUrl = process.env.NEXT_PUBLIC_DJANGO_API_URL || '';
         const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
         
         const response = await fetch(fullUrl, {
