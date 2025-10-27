@@ -68,7 +68,6 @@ export function SiteStatusBreakdown({ siteStatusData }: { siteStatusData: SiteSt
     setIsLoading(true);
     try {
         const token = localStorage.getItem('token') || undefined;
-        // The paginated URL returns the full dashboard object
         const paginatedDashboardData = await fetchData<{ site_status: SiteStatusData }>(url, token);
 
         if (paginatedDashboardData) {

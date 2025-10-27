@@ -99,8 +99,7 @@ async function getDashboardData(org: Organization, token?: string, url?: string)
   const fetchUrl = url || `/agency/${org.code}/agency-dashboard/`;
   
   try {
-      const baseUrl = process.env.NEXT_PUBLIC_DJANGO_API_URL || 'http://are.towerbuddy.tel:8000/security/api';
-      const fullUrl = fetchUrl.startsWith('http') ? fetchUrl : `${baseUrl}${fetchUrl}`;
+      const fullUrl = fetchUrl.startsWith('http') ? fetchUrl : `${process.env.NEXT_PUBLIC_DJANGO_API_URL}${fetchUrl}`;
       
       const response = await fetch(fullUrl, {
           headers: {

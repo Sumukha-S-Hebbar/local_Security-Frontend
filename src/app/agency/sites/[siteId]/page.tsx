@@ -148,7 +148,7 @@ export default function AgencySiteReportPage() {
   
   useEffect(() => {
     if (loggedInOrg && siteId) {
-      const baseUrl = `/security/api/agency/${loggedInOrg.code}/site/${siteId}/`;
+      const baseUrl = `/agency/${loggedInOrg.code}/site/${siteId}/`;
       const params = new URLSearchParams();
 
       if (selectedYear !== 'all') params.append('year', selectedYear);
@@ -584,7 +584,6 @@ export default function AgencySiteReportPage() {
                       size="sm"
                       onClick={() => handleIncidentPagination(paginatedIncidents.previous)}
                       disabled={!paginatedIncidents.previous}
-                      className="w-20"
                   >
                       Previous
                   </Button>
@@ -593,7 +592,6 @@ export default function AgencySiteReportPage() {
                       size="sm"
                       onClick={() => handleIncidentPagination(paginatedIncidents.next)}
                       disabled={!paginatedIncidents.next}
-                      className="w-20"
                   >
                       Next
                   </Button>

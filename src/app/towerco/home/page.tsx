@@ -166,34 +166,30 @@ function TowercoHomePageContent() {
     }
   }, [router]);
 
+  const getDashboardData = useCallback(async (url: string) => {
+    const token = localStorage.getItem('token') || undefined;
+    return await fetchData<DashboardData>(url, token);
+  }, []);
+
   useEffect(() => {
     if (org) {
-      const token = localStorage.getItem('token') || undefined;
-      const getDashboardData = async () => {
-        let url = `/orgs/${org.code}/security-dashboard/`;
-        try {
-          const dashboardData = await fetchData<DashboardData>(url, token);
-          setData(dashboardData);
-        } catch (error) {
-          console.error(error);
+      const url = `/orgs/${org.code}/security-dashboard/`;
+      getDashboardData(url)
+        .then(setData)
+        .catch(err => {
+          console.error(err);
           setData(null);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-      getDashboardData();
+        })
+        .finally(() => setIsLoading(false));
     }
-  }, [org]);
+  }, [org, getDashboardData]);
   
   const handleIncidentPagination = async (url: string | null) => {
     if (!url || !data) return;
     setIsIncidentsLoading(true);
     try {
-        const token = localStorage.getItem('token') || undefined;
-        // The paginated URL returns the full dashboard object, so we type it as DashboardData
-        const paginatedData = await fetchData<DashboardData>(url, token);
+        const paginatedData = await getDashboardData(url);
         if (paginatedData) {
-            // We only need to update the active_incidents part of the state
             setData({ ...data, active_incidents: paginatedData.active_incidents });
         }
     } catch(error) {
