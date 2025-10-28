@@ -184,6 +184,7 @@ export default function AgencyReportPage() {
   const [isAssignedSitesLoading, setIsAssignedSitesLoading] = useState(false);
   const [isIncidentsLoading, setIsIncidentsLoading] = useState(false);
   const [loggedInOrg, setLoggedInOrg] = useState<Organization | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   const [performanceSelectedYear, setPerformanceSelectedYear] = useState<string>('all');
   const [performanceSelectedMonth, setPerformanceSelectedMonth] = useState<string>('all');
@@ -197,18 +198,19 @@ export default function AgencyReportPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-        const orgData = localStorage.getItem('organization');
-        if (orgData) {
-            setLoggedInOrg(JSON.parse(orgData));
+        const userDataString = localStorage.getItem('userData');
+        if (userDataString) {
+          const userData = JSON.parse(userDataString);
+          setLoggedInOrg(userData.user.organization);
+          setToken(userData.token);
         }
     }
   }, []);
 
   const fetchIncidents = useCallback(async (url?: string) => {
-    if (!loggedInOrg || !reportData?.name) return;
+    if (!loggedInOrg || !reportData?.name || !token) return;
     setIsIncidentsLoading(true);
-    const token = localStorage.getItem('token') || undefined;
-
+    
     let fetchUrl = url;
     if (!fetchUrl) {
       const baseUrl = `/orgs/${loggedInOrg.code}/incidents/list/`;
@@ -237,15 +239,14 @@ export default function AgencyReportPage() {
     } finally {
       setIsIncidentsLoading(false);
     }
-}, [loggedInOrg, toast, reportData?.name, incidentsYearFilter, incidentsMonthFilter, incidentsStatusFilter]);
+}, [loggedInOrg, toast, reportData?.name, token, incidentsYearFilter, incidentsMonthFilter, incidentsStatusFilter]);
 
 
   useEffect(() => {
-      if (!loggedInOrg || !agencyId) return;
+      if (!loggedInOrg || !agencyId || !token) return;
 
       const fetchReportData = async () => {
           setIsLoading(true);
-          const token = localStorage.getItem('token') || undefined;
           const orgCode = loggedInOrg.code;
           
           let url = `/orgs/${orgCode}/security-agencies/${agencyId}/`;
@@ -282,7 +283,7 @@ export default function AgencyReportPage() {
       };
 
       fetchReportData();
-  }, [loggedInOrg, agencyId, toast, performanceSelectedYear, performanceSelectedMonth]);
+  }, [loggedInOrg, agencyId, token, toast, performanceSelectedYear, performanceSelectedMonth]);
 
   useEffect(() => {
       if (reportData && reportData.name) {
@@ -292,11 +293,10 @@ export default function AgencyReportPage() {
 
 
   const handleAssignedSitesPagination = useCallback(async (url: string | null) => {
-    if (!url) return;
+    if (!url || !token) return;
     setIsAssignedSitesLoading(true);
-    const token = localStorage.getItem('token');
     try {
-        const response = await fetchData<{ assigned_sites: PaginatedResponse<AssignedSiteItem> }>(url, token || undefined);
+        const response = await fetchData<{ assigned_sites: PaginatedResponse<AssignedSiteItem> }>(url, token);
         if (response) {
             setPaginatedAssignedSites(response.assigned_sites);
         }
@@ -305,7 +305,7 @@ export default function AgencyReportPage() {
     } finally {
         setIsAssignedSitesLoading(false);
     }
-  }, [toast]);
+  }, [toast, token]);
 
   const performanceMetrics = useMemo(() => {
     if (!reportData || !reportData.performance) return null;

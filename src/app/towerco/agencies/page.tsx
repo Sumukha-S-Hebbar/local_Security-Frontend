@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useRef, Fragment, useCallback } from 'react';
@@ -124,28 +125,27 @@ export default function TowercoAgenciesPage() {
     
     const [loggedInOrg, setLoggedInOrg] = useState<Organization | null>(null);
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string|null>(null);
     const [apiRegions, setApiRegions] = useState<ApiRegion[]>([]);
     const [apiCities, setApiCities] = useState<ApiCity[]>([]);
     const [isCitiesLoading, setIsCitiesLoading] = useState(false);
 
     useEffect(() => {
      if (typeof window !== 'undefined') {
-        const orgData = localStorage.getItem('organization');
-        const userData = localStorage.getItem('user');
-        if (orgData) {
-            setLoggedInOrg(JSON.parse(orgData));
-        }
-        if (userData) {
-            setLoggedInUser(JSON.parse(userData));
+        const userDataString = localStorage.getItem('userData');
+        if (userDataString) {
+            const userData = JSON.parse(userDataString);
+            setLoggedInOrg(userData.user.organization);
+            setLoggedInUser(userData.user.user);
+            setToken(userData.token);
         }
      }
     }, []);
 
     const fetchAllAgencies = useCallback(async (page: number = 1) => {
-        if (!loggedInOrg) return;
+        if (!loggedInOrg || !token) return;
         setIsLoading(true);
         const orgCode = loggedInOrg.code;
-        const token = localStorage.getItem('token') || undefined;
 
         const params = new URLSearchParams({
             page: page.toString(),
@@ -174,36 +174,34 @@ export default function TowercoAgenciesPage() {
         } finally {
             setIsLoading(false);
         }
-    }, [loggedInOrg, searchQuery, selectedRegion, selectedCity, toast]);
+    }, [loggedInOrg, token, searchQuery, selectedRegion, selectedCity, toast]);
     
     useEffect(() => {
       async function fetchFilterRegions() {
-          if (!loggedInUser || !loggedInUser.country) return;
-          const token = localStorage.getItem('token');
+          if (!loggedInUser || !loggedInUser.country || !token) return;
           const countryId = loggedInUser.country.id;
           const url = `/regions/?country=${countryId}`;
           try {
-              const data = await fetchData<{ regions: ApiRegion[] }>(url, token || undefined);
+              const data = await fetchData<{ regions: ApiRegion[] }>(url, token);
               setFilterRegions(data?.regions || []);
           } catch (error) {
               console.error("Failed to fetch regions for filters:", error);
           }
       }
       fetchFilterRegions();
-    }, [loggedInUser]);
+    }, [loggedInUser, token]);
     
     useEffect(() => {
         async function fetchFilterCities() {
-            if (selectedRegion === 'all' || !loggedInUser || !loggedInUser.country) {
+            if (selectedRegion === 'all' || !loggedInUser || !loggedInUser.country || !token) {
                 setFilterCities([]);
                 return;
             }
             setIsFilterCitiesLoading(true);
-            const token = localStorage.getItem('token');
             const countryId = loggedInUser.country.id;
             const url = `/cities/?country=${countryId}&region=${selectedRegion}`;
             try {
-                const data = await fetchData<{ cities: ApiCity[] }>(url, token || undefined);
+                const data = await fetchData<{ cities: ApiCity[] }>(url, token);
                 setFilterCities(data?.cities || []);
             } catch (error) {
                 console.error("Failed to fetch cities for filters:", error);
@@ -213,7 +211,7 @@ export default function TowercoAgenciesPage() {
             }
         }
         fetchFilterCities();
-    }, [selectedRegion, loggedInUser]);
+    }, [selectedRegion, loggedInUser, token]);
 
     const handleRegionChange = (regionId: string) => {
         setSelectedRegion(regionId);
@@ -222,9 +220,8 @@ export default function TowercoAgenciesPage() {
 
 
     const handlePagination = useCallback(async (url: string | null) => {
-        if (!url || !loggedInOrg) return;
+        if (!url || !loggedInOrg || !token) return;
         setIsLoading(true);
-        const token = localStorage.getItem('token') || undefined;
 
         try {
             const response = await fetchData<PaginatedAgenciesResponse>(url, token);
@@ -241,7 +238,7 @@ export default function TowercoAgenciesPage() {
         } finally {
             setIsLoading(false);
         }
-    }, [loggedInOrg, toast]);
+    }, [loggedInOrg, toast, token]);
 
 
     useEffect(() => {
@@ -255,7 +252,7 @@ export default function TowercoAgenciesPage() {
         if (loggedInOrg) {
             fetchAllAgencies(1);
         }
-    }, [searchQuery, selectedRegion, selectedCity, loggedInOrg]);
+    }, [searchQuery, selectedRegion, selectedCity, loggedInOrg, fetchAllAgencies]);
 
 
     const uploadForm = useForm<z.infer<typeof uploadFormSchema>>({
@@ -281,14 +278,13 @@ export default function TowercoAgenciesPage() {
 
     useEffect(() => {
         async function fetchRegions() {
-            if (!loggedInUser || !loggedInUser.country) return;
+            if (!loggedInUser || !loggedInUser.country || !token) return;
 
-            const token = localStorage.getItem('token');
             const countryId = loggedInUser.country.id;
             const url = `/regions/?country=${countryId}`;
             
             try {
-                const data = await fetchData<{ regions: ApiRegion[] }>(url, token || undefined);
+                const data = await fetchData<{ regions: ApiRegion[] }>(url, token);
                 setApiRegions(data?.regions || []);
             } catch (error) {
                 console.error("Failed to fetch regions:", error);
@@ -300,22 +296,21 @@ export default function TowercoAgenciesPage() {
             }
         }
         fetchRegions();
-    }, [loggedInUser, toast]);
+    }, [loggedInUser, toast, token]);
 
     useEffect(() => {
         async function fetchCities() {
-            if (!watchedRegion || !loggedInUser || !loggedInUser.country) {
+            if (!watchedRegion || !loggedInUser || !loggedInUser.country || !token) {
                 setApiCities([]);
                 return;
             }
             
             setIsCitiesLoading(true);
-            const token = localStorage.getItem('token');
             const countryId = loggedInUser.country.id;
             const url = `/cities/?country=${countryId}&region=${watchedRegion}`;
 
             try {
-                const data = await fetchData<{ cities: ApiCity[] }>(url, token || undefined);
+                const data = await fetchData<{ cities: ApiCity[] }>(url, token);
                 setApiCities(data?.cities || []);
             } catch (error) {
                 console.error("Failed to fetch cities:", error);
@@ -332,7 +327,7 @@ export default function TowercoAgenciesPage() {
 
         addAgencyForm.resetField('city');
         fetchCities();
-    }, [watchedRegion, loggedInUser, toast, addAgencyForm]);
+    }, [watchedRegion, loggedInUser, toast, addAgencyForm, token]);
 
     async function onUploadSubmit(values: z.infer<typeof uploadFormSchema>) {
         setIsUploading(true);
@@ -351,13 +346,12 @@ export default function TowercoAgenciesPage() {
     }
 
     async function onAddAgencySubmit(values: z.infer<typeof addAgencyFormSchema>) {
-        if (!loggedInOrg) {
+        if (!loggedInOrg || !token) {
             toast({ variant: 'destructive', title: 'Error', description: 'Organization not found. Please log in again.'});
             return;
         }
 
         setIsAddingAgency(true);
-        const token = localStorage.getItem('token');
 
         try {
             const API_URL = `${getApiBaseUrl()}/orgs/${loggedInOrg.code}/security-agencies/add/`;

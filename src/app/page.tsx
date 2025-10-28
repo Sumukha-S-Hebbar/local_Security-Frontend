@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -25,17 +26,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { CheckIcon, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Organization, User, Subcontractor } from '@/types';
-import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
-import { cn } from '@/lib/utils';
+import { useForm } from 'react-hook-form';
 import { getApiBaseUrl } from '@/lib/get-api-url';
 
 interface LoginResponse {
   token: string;
   user: User;
   organization?: Organization;
-  subcontractor?: Subcontractor;
-  country?: User['country'];
+  subcontractor?: Subcontractor | null;
+  country?: User['country'] | null;
 }
 
 
@@ -52,25 +52,24 @@ export default function RootPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('user');
+      const storedUserData = localStorage.getItem('userData');
 
-      if (token && userData) {
+      if (storedUserData) {
         try {
-          const user: User = JSON.parse(userData);
-          // Redirect based on the user's role
-          const userRole = user.role;
-          if (userRole === 'T' || userRole === 'O') {
-            router.push('/towerco/home');
-          } else if (userRole === 'SA' || userRole === 'SG') {
-            router.push('/agency/home');
+          const userData = JSON.parse(storedUserData);
+          if (userData && userData.isLoggedIn && userData.user && userData.user.token) {
+            const userRole = userData.role;
+            if (userRole === 'T' || userRole === 'O') {
+              router.push('/towerco/home');
+            } else if (userRole === 'SA' || userRole === 'SG') {
+              router.push('/agency/home');
+            }
+          } else {
+             localStorage.removeItem('userData');
           }
         } catch (error) {
           console.error("Failed to parse user data from localStorage", error);
-          // Clear potentially corrupted data
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          localStorage.removeItem('organization');
+          localStorage.removeItem('userData');
         }
       }
     }
@@ -102,45 +101,47 @@ export default function RootPage() {
       }
       
       const data: LoginResponse = await response.json();
-      
-      let orgToStore: Partial<Organization> | null = null;
+
+      let orgForStorage: Partial<Organization> | null = null;
       if (data.organization) {
-        orgToStore = data.organization;
+        orgForStorage = data.organization;
       } else if (data.subcontractor) {
-        // Map subcontractor to organization structure for consistent use in the app
-        orgToStore = {
+        orgForStorage = {
             id: data.subcontractor.id,
             name: data.subcontractor.name,
-            code: data.subcontractor.code, // Use the numeric code for API calls
+            code: data.subcontractor.code,
             role: data.subcontractor.role,
             type: data.subcontractor.type,
             logo: data.subcontractor.logo,
             member: data.subcontractor.subcon_member
         };
       }
+      
+      const userDataToStore = {
+          isLoggedIn: true,
+          user: {
+              token: data.token,
+              country: data.country,
+              organization: orgForStorage,
+              subcontractor: data.subcontractor,
+              user: data.user,
+          },
+          role: data.user.role,
+          globalConsent: data.organization?.global_consent || false,
+          hasUserProfile: data.user.has_user_profile,
+          orgCode: data.organization?.code,
+          token: data.token,
+      };
 
-      const userToStore = { ...data.user };
-      if (data.country) {
-          userToStore.country = data.country;
-      }
-
-
-      // Store user and organization data in localStorage
       if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(userToStore));
-        if (orgToStore) {
-            localStorage.setItem('organization', JSON.stringify(orgToStore));
-        }
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('userData', JSON.stringify(userDataToStore));
       }
-
 
       toast({
         title: 'Login Successful',
         description: `Welcome, ${data.user.first_name}! Redirecting...`,
       });
 
-      // Redirect based on the user's role
       const userRole = data.user.role;
       if (userRole === 'T' || userRole === 'O') {
         router.push('/towerco/home');

@@ -20,11 +20,11 @@ export default function TowercoLayout({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const userData = localStorage.getItem('user');
-      if (userData) {
-        const user: User = JSON.parse(userData);
+      const userDataString = localStorage.getItem('userData');
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
         // Towerco/MNO roles are 'T' and 'O'
-        if (user.role === 'SA' || user.role === 'SG') {
+        if (userData.role === 'SA' || userData.role === 'SG') {
           setIsAuthorized(false);
         } else {
           setIsAuthorized(true);

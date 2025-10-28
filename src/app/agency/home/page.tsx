@@ -95,34 +95,9 @@ interface AgencyDashboardData {
     incident_trend: IncidentTrendData[];
 }
 
-async function getDashboardData(org: Organization, token?: string, url?: string): Promise<AgencyDashboardData | null> {
-  const fetchUrl = url || `/agency/${org.code}/agency-dashboard/`;
-  
-  try {
-      const fullUrl = fetchUrl.startsWith('http') ? fetchUrl : `${process.env.NEXT_PUBLIC_DJANGO_API_URL}${fetchUrl}`;
-      
-      const response = await fetch(fullUrl, {
-          headers: {
-              'Authorization': `Token ${token}`,
-              'Content-Type': 'application/json',
-          }
-      });
-
-      if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`API Error: ${response.status} ${response.statusText}`, errorText);
-          throw new Error(errorText || `Request failed with status ${response.status}`);
-      }
-
-      if (response.status === 204) {
-          return null;
-      }
-
-      return await response.json() as AgencyDashboardData;
-  } catch (error) {
-      console.error("Network or parsing error:", error);
-      throw error;
-  }
+async function getDashboardData(orgCode: string, token?: string, url?: string): Promise<AgencyDashboardData | null> {
+  const fetchUrl = url || `/agency/${orgCode}/agency-dashboard/`;
+  return fetchData<AgencyDashboardData>(fetchUrl, token);
 }
 
 export default function AgencyHomePage() {
@@ -131,12 +106,15 @@ export default function AgencyHomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isIncidentsLoading, setIsIncidentsLoading] = useState(false);
   const [org, setOrg] = useState<Organization | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedOrg = localStorage.getItem('organization');
-      if (savedOrg) {
-        setOrg(JSON.parse(savedOrg));
+      const savedUserData = localStorage.getItem('userData');
+      if (savedUserData) {
+        const userData = JSON.parse(savedUserData);
+        setOrg(userData.user.organization);
+        setToken(userData.token);
       } else {
         router.replace('/');
       }
@@ -144,9 +122,8 @@ export default function AgencyHomePage() {
   }, [router]);
   
   useEffect(() => {
-    if (org) {
-      const token = localStorage.getItem('token') || undefined;
-      getDashboardData(org, token)
+    if (org && token) {
+      getDashboardData(org.code.toString(), token)
         .then(setData)
         .catch(err => {
             console.error(err);
@@ -154,14 +131,13 @@ export default function AgencyHomePage() {
         })
         .finally(() => setIsLoading(false));
     }
-  }, [org]);
+  }, [org, token]);
 
   const handleIncidentPagination = async (url: string | null) => {
-    if (!url || !data || !org) return;
+    if (!url || !data || !org || !token) return;
     setIsIncidentsLoading(true);
     try {
-        const token = localStorage.getItem('token') || undefined;
-        const paginatedData = await getDashboardData(org, token, url);
+        const paginatedData = await getDashboardData(org.code.toString(), token, url);
         if (paginatedData) {
             setData({ ...data, active_incidents: paginatedData.active_incidents });
         }

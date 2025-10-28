@@ -154,12 +154,15 @@ function TowercoHomePageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isIncidentsLoading, setIsIncidentsLoading] = useState(false);
   const [org, setOrg] = useState<Organization | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedOrg = localStorage.getItem('organization');
-      if (savedOrg) {
-        setOrg(JSON.parse(savedOrg));
+      const savedUserData = localStorage.getItem('userData');
+      if (savedUserData) {
+        const userData = JSON.parse(savedUserData);
+        setOrg(userData.user.organization);
+        setToken(userData.token);
       } else {
         router.replace('/');
       }
@@ -167,12 +170,12 @@ function TowercoHomePageContent() {
   }, [router]);
 
   const getDashboardData = useCallback(async (url: string) => {
-    const token = localStorage.getItem('token') || undefined;
+    if (!token) return null;
     return await fetchData<DashboardData>(url, token);
-  }, []);
+  }, [token]);
 
   useEffect(() => {
-    if (org) {
+    if (org && token) {
       const url = `/orgs/${org.code}/security-dashboard/`;
       getDashboardData(url)
         .then(setData)
@@ -182,7 +185,7 @@ function TowercoHomePageContent() {
         })
         .finally(() => setIsLoading(false));
     }
-  }, [org, getDashboardData]);
+  }, [org, token, getDashboardData]);
   
   const handleIncidentPagination = async (url: string | null) => {
     if (!url || !data) return;

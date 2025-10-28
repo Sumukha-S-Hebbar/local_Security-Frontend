@@ -1,10 +1,13 @@
+
 import { getApiBaseUrl } from './get-api-url';
 
 // A simple data fetching function
 export async function fetchData<T>(url: string, token?: string): Promise<T | null> {
     try {
         const baseUrl = getApiBaseUrl();
-        const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+        // Ensure we don't double-slash if the passed url starts with one
+        const endpoint = url.startsWith('/') ? url.substring(1) : url;
+        const fullUrl = url.startsWith('http') ? url : `${baseUrl}/${endpoint}`;
         
         const response = await fetch(fullUrl, {
             headers: {

@@ -19,11 +19,11 @@ export default function AgencyLayout({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const userData = localStorage.getItem('user');
-      if (userData) {
-        const user: User = JSON.parse(userData);
+      const userDataString = localStorage.getItem('userData');
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
         // Agency roles are 'SA' (Security Agency) and 'SG' (Security Guard)
-        if (user.role === 'T' || user.role === 'O') {
+        if (userData.role === 'T' || userData.role === 'O') {
           setIsAuthorized(false);
         } else {
           setIsAuthorized(true);

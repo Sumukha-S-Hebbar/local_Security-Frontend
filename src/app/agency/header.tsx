@@ -54,9 +54,7 @@ export default function AgencyHeader() {
 
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('organization');
+      localStorage.removeItem('userData');
     }
     router.push('/');
   };

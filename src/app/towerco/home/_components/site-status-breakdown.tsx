@@ -32,9 +32,20 @@ export function SiteStatusBreakdown({ siteStatusData }: { siteStatusData: SiteSt
   const [selectedSection, setSelectedSection] = useState<'assigned' | 'unassigned' | null>('assigned');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const [token, setToken] = useState<string | null>(null);
 
   const [assignedData, setAssignedData] = useState<PaginatedSites | null>(siteStatusData?.assigned_sites || null);
   const [unassignedData, setUnassignedData] = useState<PaginatedSites | null>(siteStatusData?.unassigned_sites || null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+        const userDataString = localStorage.getItem('userData');
+        if (userDataString) {
+            const userData = JSON.parse(userDataString);
+            setToken(userData.token);
+        }
+    }
+  }, []);
 
   useEffect(() => {
     setAssignedData(siteStatusData?.assigned_sites || null);
@@ -64,10 +75,9 @@ export function SiteStatusBreakdown({ siteStatusData }: { siteStatusData: SiteSt
   };
 
   const handlePagination = async (url: string | null, section: 'assigned' | 'unassigned') => {
-    if (!url) return;
+    if (!url || !token) return;
     setIsLoading(true);
     try {
-        const token = localStorage.getItem('token') || undefined;
         const paginatedDashboardData = await fetchData<{ site_status: SiteStatusData }>(url, token);
 
         if (paginatedDashboardData) {
