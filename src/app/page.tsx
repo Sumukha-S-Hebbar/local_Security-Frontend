@@ -57,18 +57,17 @@ export default function RootPage() {
       if (storedUserData) {
         try {
           const userData = JSON.parse(storedUserData);
-          if (userData && userData.isLoggedIn && userData.user && userData.user.token) {
+          if (userData && userData.isLoggedIn) {
             const userRole = userData.role;
             if (userRole === 'T' || userRole === 'O') {
               router.push('/towerco/home');
             } else if (userRole === 'SA' || userRole === 'SG') {
               router.push('/agency/home');
             }
-          } else {
-             localStorage.removeItem('userData');
           }
         } catch (error) {
           console.error("Failed to parse user data from localStorage", error);
+          // Clear potentially corrupted data
           localStorage.removeItem('userData');
         }
       }
@@ -135,6 +134,9 @@ export default function RootPage() {
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('userData', JSON.stringify(userDataToStore));
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('organization', JSON.stringify(orgForStorage));
+        localStorage.setItem('token', data.token);
       }
 
       toast({
