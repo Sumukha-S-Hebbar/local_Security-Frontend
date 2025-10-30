@@ -20,5 +20,7 @@ export const getApiBaseUrl = (): string => {
     }
 
     // For any deployed environment (e.g., ken.towerbuddy.tel, are.towerbuddy.tel), construct the URL dynamically.
-    return `${protocol}//${hostname}:8000/api/v2`;
+    return `${protocol}//${hostname}/api/v2`;
 };
+
+    

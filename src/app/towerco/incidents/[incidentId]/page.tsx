@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -109,9 +110,10 @@ export default function IncidentReportPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-        const orgData = localStorage.getItem('organization');
-        if (orgData) {
-            setLoggedInOrg(JSON.parse(orgData));
+        const userDataString = localStorage.getItem('userData');
+        if (userDataString) {
+          const userData = JSON.parse(userDataString);
+          setLoggedInOrg(userData.user.organization);
         }
     }
   }, []);
@@ -584,3 +586,5 @@ export default function IncidentReportPage() {
     </>
   );
 }
+
+    

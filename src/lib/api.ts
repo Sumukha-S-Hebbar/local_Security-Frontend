@@ -5,9 +5,8 @@ import { getApiBaseUrl } from './get-api-url';
 export async function fetchData<T>(url: string, token?: string): Promise<T | null> {
     try {
         const baseUrl = getApiBaseUrl();
-        // Ensure we don't double-slash if the passed url starts with one
-        const endpoint = url.startsWith('/') ? url.substring(1) : url;
-        const fullUrl = url.startsWith('http') ? url : `${baseUrl}/${endpoint}`;
+        // Construct the full URL, handling both absolute and relative paths
+        const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
         
         const response = await fetch(fullUrl, {
             headers: {
@@ -34,3 +33,5 @@ export async function fetchData<T>(url: string, token?: string): Promise<T | nul
         throw error;
     }
 }
+
+    
