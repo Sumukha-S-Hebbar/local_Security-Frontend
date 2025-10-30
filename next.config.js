@@ -1,6 +1,10 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+ 
+  basePath: '/security',
+  trailingSlash: true,  // match Apache's rewrite
+ 
   images: {
     remotePatterns: [
       {
@@ -20,5 +24,5 @@ const nextConfig = {
     ],
   },
 };
-
+ 
 module.exports = nextConfig;
