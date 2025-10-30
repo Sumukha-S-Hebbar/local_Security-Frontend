@@ -191,6 +191,10 @@ export default function RootPage() {
               <CheckIcon className="w-6 h-6" />
               <span className='font-medium'>Centralized Resource Management</span>
             </li>
+            <li className="flex items-center gap-3">
+              <CheckIcon className="w-6 h-6" />
+              <span className='font-medium'>One Platform For All</span>
+            </li>
           </ul>
         </div>
 
