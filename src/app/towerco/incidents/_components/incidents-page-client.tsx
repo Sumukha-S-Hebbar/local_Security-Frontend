@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import type { Site, Organization } from '@/types';
 import {
@@ -64,15 +64,15 @@ type PaginatedIncidentsResponse = {
 const ITEMS_PER_PAGE = 10;
 
 export function IncidentsPageClient() {
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   
   const [incidents, setIncidents] = useState<IncidentListItem[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
-  const [allIncidentsForSummary, setAllIncidentsForSummary] = useState<IncidentListItem[]>([]);
   const [incidentCounts, setIncidentCounts] = useState<IncidentCounts>({ active_incidents_count: 0, under_review_incidents_count: 0, resolved_incidents_count: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [loggedInOrg, setLoggedInOrg] = useState<Organization | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   const statusFromQuery = searchParams.get('status');
   const siteIdFromQuery = searchParams.get('siteId');
@@ -89,53 +89,47 @@ export function IncidentsPageClient() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const orgData = localStorage.getItem('organization');
-      if (orgData) {
-        setLoggedInOrg(JSON.parse(orgData));
+      const userDataString = localStorage.getItem('userData');
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
+        setLoggedInOrg(userData.user.organization);
+        setToken(userData.token);
       }
     }
   }, []);
 
   const availableYears = useMemo(() => {
-    // Return a default range even if there's no data, to allow filtering for past/future years
     const currentYear = new Date().getFullYear();
     const years = new Set<string>();
     for (let i = 0; i < 5; i++) {
         years.add((currentYear - i).toString());
     }
-    
-    if (allIncidentsForSummary.length > 0) {
-        allIncidentsForSummary.forEach((incident) => 
-            years.add(new Date(incident.incident_time).getFullYear().toString())
-        );
-    }
-    
     return Array.from(years).sort((a, b) => parseInt(b) - parseInt(a));
-  }, [allIncidentsForSummary]);
+  }, []);
 
   useEffect(() => {
-    if (!loggedInOrg) return;
+    if (!loggedInOrg || !token) return;
 
     const fetchSupportingData = async () => {
-        const token = localStorage.getItem('token') || undefined;
-        // Fetch sites for the filter dropdown
         const sitesUrl = `/orgs/${loggedInOrg.code}/sites/list/`;
-        const sitesData = await fetchData<{results: Site[]}>(sitesUrl, token);
-        setSites(sitesData?.results || []);
+        try {
+            const sitesData = await fetchData<{results: Site[]}>(sitesUrl, token);
+            setSites(sitesData?.results || []);
+        } catch (error) {
+            console.error("Failed to fetch sites for filter", error);
+        }
     };
 
     fetchSupportingData();
-  }, [loggedInOrg]);
+  }, [loggedInOrg, token]);
   
-   useEffect(() => {
-    if (!loggedInOrg) return;
+   const fetchFilteredIncidents = useCallback(async (page: number) => {
+    if (!loggedInOrg || !token) return;
 
-    const fetchFilteredIncidents = async () => {
       setIsLoading(true);
-      const token = localStorage.getItem('token') || undefined;
       
       const params = new URLSearchParams({
-        page: currentPage.toString(),
+        page: page.toString(),
         page_size: ITEMS_PER_PAGE.toString(),
       });
       
@@ -172,30 +166,17 @@ export function IncidentsPageClient() {
       } finally {
         setIsLoading(false);
       }
-    };
+   }, [loggedInOrg, token, selectedStatus, searchQuery, selectedSite, selectedYear, selectedMonth]);
 
-    fetchFilteredIncidents();
-  }, [loggedInOrg, selectedStatus, searchQuery, selectedSite, selectedYear, selectedMonth, currentPage]);
+  useEffect(() => {
+    fetchFilteredIncidents(currentPage);
+  }, [fetchFilteredIncidents, currentPage]);
 
   const handlePagination = async (url: string | null) => {
     if (!url) return;
-    setIsLoading(true);
-    const token = localStorage.getItem('token') || undefined;
-    try {
-      const data = await fetchData<PaginatedIncidentsResponse>(url, token);
-      setIncidents(data?.results || []);
-      setTotalCount(data?.count || 0);
-      setNextUrl(data?.next || null);
-      setPrevUrl(data?.previous || null);
-      
-      const urlObject = new URL(url);
-      const pageParam = urlObject.searchParams.get('page');
-      setCurrentPage(pageParam ? parseInt(pageParam) : 1);
-    } catch (error) {
-        console.error("Failed to fetch page:", error);
-    } finally {
-        setIsLoading(false);
-    }
+    const urlObject = new URL(url);
+    const pageParam = urlObject.searchParams.get('page');
+    setCurrentPage(pageParam ? parseInt(pageParam) : 1);
   };
 
   useEffect(() => {
