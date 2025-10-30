@@ -102,6 +102,7 @@ export default function IncidentReportPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isResolving, setIsResolving] = useState(false);
   const [loggedInOrg, setLoggedInOrg] = useState<Organization | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   const [resolutionNotes, setResolutionNotes] = useState('');
   const [resolutionFiles, setResolutionFiles] = useState<FileList | null>(null);
@@ -114,17 +115,17 @@ export default function IncidentReportPage() {
         if (userDataString) {
           const userData = JSON.parse(userDataString);
           setLoggedInOrg(userData.user.organization);
+          setToken(userData.token);
         }
     }
   }, []);
 
   useEffect(() => {
     const id = parseInt(incidentIdParam, 10);
-    if (!loggedInOrg || !incidentIdParam || isNaN(id)) return;
+    if (!loggedInOrg || !token || !incidentIdParam || isNaN(id)) return;
 
     const fetchIncidentReport = async () => {
         setIsLoading(true);
-        const token = localStorage.getItem('token') || undefined;
         const url = `/orgs/${loggedInOrg.code}/incident/${id}/`;
 
         try {
@@ -147,7 +148,7 @@ export default function IncidentReportPage() {
         }
     };
     fetchIncidentReport();
-  }, [loggedInOrg, incidentIdParam, toast]);
+  }, [loggedInOrg, token, incidentIdParam, toast]);
 
   if (isLoading) {
       return (
@@ -198,13 +199,12 @@ export default function IncidentReportPage() {
         return;
     }
     
-    if (!loggedInOrg || !incidentIdParam) {
-       toast({ variant: 'destructive', title: 'Error', description: 'Cannot resolve incident: missing organization or incident ID.' });
+    if (!loggedInOrg || !incidentIdParam || !token) {
+       toast({ variant: 'destructive', title: 'Error', description: 'Cannot resolve incident: missing organization, token, or incident ID.' });
        return;
     };
 
     setIsResolving(true);
-    const token = localStorage.getItem('token');
     const formData = new FormData();
     formData.append('resolution_notes', resolutionNotes);
 
@@ -586,5 +586,3 @@ export default function IncidentReportPage() {
     </>
   );
 }
-
-    
