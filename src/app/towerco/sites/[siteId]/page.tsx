@@ -125,15 +125,15 @@ export default function SiteReportPage() {
     
     try {
         const data = await fetchData<{data: SiteReportData}>(url, token);
-        if (data?.data) {
-          if (isFiltering) {
-              setPaginatedIncidents(data.data.incidents || null);
-          } else {
-              setReportData(data.data);
-              setPaginatedIncidents(data.data.incidents || null);
-          }
+        if (isFiltering) {
+            setPaginatedIncidents(data?.data.incidents || null);
         } else {
-           setReportData(null);
+            if (data?.data) {
+                setReportData(data.data);
+                setPaginatedIncidents(data.data.incidents || null);
+            } else {
+                setReportData(null);
+            }
         }
     } catch (error) {
         console.error("Failed to fetch site report:", error);
@@ -157,7 +157,7 @@ export default function SiteReportPage() {
       const params = new URLSearchParams();
 
       if (selectedYear !== 'all') params.append('year', selectedYear);
-      if (selectedMonth !== 'all') params.append('month', (parseInt(selectedMonth, 10)).toString());
+      if (selectedMonth !== 'all') params.append('month', (parseInt(selectedMonth, 10) + 1).toString());
       if (selectedStatus !== 'all') {
         let apiStatus = '';
         if (selectedStatus === 'under-review') {
@@ -169,7 +169,7 @@ export default function SiteReportPage() {
       }
       
       const fullUrl = `${baseUrl}?${params.toString()}`;
-      fetchSiteReport(fullUrl, false); 
+      fetchSiteReport(fullUrl, !!(params.toString())); 
     }
   }, [loggedInOrg, siteId, selectedYear, selectedMonth, selectedStatus, fetchSiteReport, token]);
 
@@ -522,7 +522,7 @@ export default function SiteReportPage() {
                 <SelectContent>
                   <SelectItem value="all" className="font-medium">All Months</SelectItem>
                   {Array.from({ length: 12 }, (_, i) => (
-                    <SelectItem key={i} value={i.toString()} className="font-medium">
+                    <SelectItem key={i} value={(i + 1).toString()} className="font-medium">
                       {new Date(0, i).toLocaleString('default', { month: 'long' })}
                     </SelectItem>
                   ))}
@@ -604,5 +604,3 @@ export default function SiteReportPage() {
     </div>
   );
 }
-
-    
