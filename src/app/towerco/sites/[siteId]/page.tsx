@@ -124,13 +124,15 @@ export default function SiteReportPage() {
     }
     
     try {
-        const data = await fetchData<{data: SiteReportData}>(url, token);
+        const response = await fetchData<{data: SiteReportData}>(url, token);
+        const data = response?.data;
+        
         if (isFiltering) {
-            setPaginatedIncidents(data?.data.incidents || null);
+            setPaginatedIncidents(data?.incidents || null);
         } else {
-            if (data?.data) {
-                setReportData(data.data);
-                setPaginatedIncidents(data.data.incidents || null);
+            if (data) {
+                setReportData(data);
+                setPaginatedIncidents(data.incidents || null);
             } else {
                 setReportData(null);
             }
@@ -169,7 +171,8 @@ export default function SiteReportPage() {
       }
       
       const fullUrl = `${baseUrl}?${params.toString()}`;
-      fetchSiteReport(fullUrl, !!(params.toString())); 
+      // A filter is being applied if there are any query params
+      fetchSiteReport(fullUrl, params.toString().length > 0); 
     }
   }, [loggedInOrg, siteId, selectedYear, selectedMonth, selectedStatus, fetchSiteReport, token]);
 
@@ -178,9 +181,9 @@ export default function SiteReportPage() {
       if (!url || !token) return;
       setIsIncidentsLoading(true);
       try {
-        const data = await fetchData<{ incidents: PaginatedIncidents }>(url, token);
-        if (data) {
-          setPaginatedIncidents(data.incidents || null);
+        const response = await fetchData<{data: SiteReportData }>(url, token);
+        if (response?.data) {
+          setPaginatedIncidents(response.data.incidents || null);
         }
       } catch (error) {
         console.error("Failed to fetch paginated incidents:", error);
