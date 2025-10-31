@@ -1049,5 +1049,3 @@ export function SitesPageClient() {
     </div>
   );
 }
-
-    

@@ -132,22 +132,18 @@ export function SitesPageClient() {
         if (assignedSearchQuery) params.append('search', assignedSearchQuery);
         if (selectedPatrollingOfficerFilter !== 'all') params.append('patrol_officer', selectedPatrollingOfficerFilter);
         if (assignedSelectedRegion !== 'all') {
-          const region = filterRegions.find(r => r.id.toString() === assignedSelectedRegion);
-          if (region) params.append('region', region.name);
+          params.append('region', assignedSelectedRegion);
         }
         if (assignedSelectedCity !== 'all') {
-            const city = assignedFilterCities.find(c => c.id.toString() === assignedSelectedCity);
-            if(city) params.append('city', city.name);
+            params.append('city', assignedSelectedCity);
         }
     } else {
         if (unassignedSearchQuery) params.append('search', unassignedSearchQuery);
         if (unassignedSelectedRegion !== 'all') {
-            const region = filterRegions.find(r => r.id.toString() === unassignedSelectedRegion);
-            if(region) params.append('region', region.name);
+            params.append('region', unassignedSelectedRegion);
         }
         if (unassignedSelectedCity !== 'all') {
-            const city = unassignedFilterCities.find(c => c.id.toString() === unassignedSelectedCity);
-            if(city) params.append('city', city.name);
+            params.append('city', unassignedSelectedCity);
         }
     }
 
@@ -169,7 +165,7 @@ export function SitesPageClient() {
     } finally {
         setIsLoading(false);
     }
-  }, [loggedInOrg, token, toast, assignedSearchQuery, selectedPatrollingOfficerFilter, assignedSelectedRegion, assignedSelectedCity, unassignedSearchQuery, unassignedSelectedRegion, unassignedSelectedCity, filterRegions, assignedFilterCities, unassignedFilterCities]);
+  }, [loggedInOrg, token, toast, assignedSearchQuery, selectedPatrollingOfficerFilter, assignedSelectedRegion, assignedSelectedCity, unassignedSearchQuery, unassignedSelectedRegion, unassignedSelectedCity]);
 
 
   const fetchSupportingData = useCallback(async () => {
