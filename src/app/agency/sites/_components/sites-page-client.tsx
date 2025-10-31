@@ -66,7 +66,7 @@ type ApiCity = {
 }
 
 
-export default function AgencySitesPage() {
+export function SitesPageClient() {
   const { toast } = useToast();
   const router = useRouter();
 
@@ -77,7 +77,8 @@ export default function AgencySitesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loggedInOrg, setLoggedInOrg] = useState<Organization | null>(null);
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
-  
+  const [token, setToken] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState('assigned');
 
   // State for Assigned Sites filters
@@ -92,7 +93,7 @@ export default function AgencySitesPage() {
   const [unassignedSelectedCity, setUnassignedSelectedCity] = useState('all');
 
   const [assignment, setAssignment] = useState<{ [siteId: string]: { patrollingOfficerId?: string; guardIds?: string[]; geofencePerimeter?: string; } }>({});
-  
+
   const [assignedSitesCount, setAssignedSitesCount] = useState(0);
   const [unassignedSitesCount, setUnassignedSitesCount] = useState(0);
   const [assignedCurrentPage, setAssignedCurrentPage] = useState(1);
@@ -112,14 +113,14 @@ export default function AgencySitesPage() {
           const userData = JSON.parse(userDataString);
           setLoggedInOrg(userData.user.organization);
           setLoggedInUser(userData.user.user);
+          setToken(userData.token);
         }
     }
   }, []);
 
   const fetchSites = useCallback(async (status: 'Assigned' | 'Unassigned', page: number) => {
-    if (!loggedInOrg) return;
+    if (!loggedInOrg || !token) return;
     setIsLoading(true);
-    const token = localStorage.getItem('token') || undefined;
 
     const params = new URLSearchParams({
         personnel_assignment_status: status,
@@ -156,12 +157,11 @@ export default function AgencySitesPage() {
     } finally {
         setIsLoading(false);
     }
-  }, [loggedInOrg, toast, assignedSearchQuery, selectedPatrollingOfficerFilter, assignedSelectedRegion, assignedSelectedCity, unassignedSearchQuery, unassignedSelectedRegion, unassignedSelectedCity]);
+  }, [loggedInOrg, token, toast, assignedSearchQuery, selectedPatrollingOfficerFilter, assignedSelectedRegion, assignedSelectedCity, unassignedSearchQuery, unassignedSelectedRegion, unassignedSelectedCity]);
 
 
   const fetchSupportingData = useCallback(async () => {
-    if (!loggedInOrg) return;
-    const token = localStorage.getItem('token') || undefined;
+    if (!loggedInOrg || !token) return;
 
     try {
         const poResponse = await fetchData<{results: any[]}>(`/agency/${loggedInOrg.code}/patrol_officers/list/`, token);
@@ -190,7 +190,7 @@ export default function AgencySitesPage() {
             description: 'Failed to load supporting data.'
         });
     }
-  }, [loggedInOrg, toast]);
+  }, [loggedInOrg, token, toast]);
 
   useEffect(() => {
     if (loggedInOrg) {
@@ -212,8 +212,8 @@ export default function AgencySitesPage() {
   // Set default geofence value for unassigned sites
   useEffect(() => {
     const defaultGuards = unassignedSites.reduce((acc, site) => {
-      acc[site.id.toString()] = { 
-        patrollingOfficerId: '', 
+      acc[site.id.toString()] = {
+        patrollingOfficerId: '',
         guardIds: [],
         geofencePerimeter: site.geofencePerimeter?.toString() || ''
       };
@@ -245,35 +245,33 @@ export default function AgencySitesPage() {
     });
     return Array.from(officers.values());
   }, [assignedSites]);
-  
+
   useEffect(() => {
       async function fetchFilterRegions() {
-          if (!loggedInUser || !loggedInUser.country) return;
-          const token = localStorage.getItem('token');
+          if (!loggedInUser || !loggedInUser.country || !token) return;
           const countryId = loggedInUser.country.id;
           const url = `/regions/?country=${countryId}`;
           try {
-              const data = await fetchData<{ regions: ApiRegion[] }>(url, token || undefined);
+              const data = await fetchData<{ regions: ApiRegion[] }>(url, token);
               setFilterRegions(data?.regions || []);
           } catch (error) {
               console.error("Failed to fetch regions for filters:", error);
           }
       }
       fetchFilterRegions();
-  }, [loggedInUser]);
+  }, [loggedInUser, token]);
 
   useEffect(() => {
       async function fetchCitiesForFilter(regionId: string, setCities: React.Dispatch<React.SetStateAction<ApiCity[]>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>) {
-          if (regionId === 'all' || !loggedInUser || !loggedInUser.country) {
+          if (regionId === 'all' || !loggedInUser || !loggedInUser.country || !token) {
               setCities([]);
               return;
           }
           setLoading(true);
-          const token = localStorage.getItem('token');
           const countryId = loggedInUser.country.id;
           const url = `/cities/?country=${countryId}&region=${regionId}`;
           try {
-              const data = await fetchData<{ cities: ApiCity[] }>(url, token || undefined);
+              const data = await fetchData<{ cities: ApiCity[] }>(url, token);
               setCities(data?.cities || []);
           } catch (error) {
               console.error("Failed to fetch cities for filters:", error);
@@ -282,14 +280,14 @@ export default function AgencySitesPage() {
               setLoading(false);
           }
       }
-      
+
       if(activeTab === 'assigned') {
           fetchCitiesForFilter(assignedSelectedRegion, setAssignedFilterCities, setIsAssignedCitiesLoading);
       } else {
           fetchCitiesForFilter(unassignedSelectedRegion, setUnassignedFilterCities, setIsUnassignedCitiesLoading);
       }
 
-  }, [assignedSelectedRegion, unassignedSelectedRegion, activeTab, loggedInUser]);
+  }, [assignedSelectedRegion, unassignedSelectedRegion, activeTab, loggedInUser, token]);
 
 
   const handleAssignedRegionChange = (region: string) => {
@@ -308,10 +306,10 @@ export default function AgencySitesPage() {
       [siteId]: { ...prev[siteId], patrollingOfficerId },
     }));
   };
-  
+
   const handleAssignmentChange = (siteId: string, key: 'geofencePerimeter', value: string) => {
     setAssignment(prev => ({
-        ...prev, 
+        ...prev,
         [siteId]: {
           ...prev[siteId],
           [key]: value
@@ -326,14 +324,19 @@ export default function AgencySitesPage() {
     setAssignment((prev) => {
       const currentSelection = prev[siteId]?.guardIds || [];
       const guardsRequired = site.total_guards_requested || 0;
-      
+
       if (currentSelection.includes(guardId)) {
         const newSelection = currentSelection.filter((id) => id !== guardId);
         return { ...prev, [siteId]: { ...prev[siteId], guardIds: newSelection } };
       }
 
-      if (currentSelection.length >= guardsRequired) {
-        return prev; 
+      if (guardsRequired > 0 && currentSelection.length >= guardsRequired) {
+        toast({
+            variant: 'destructive',
+            title: 'Guard Limit Reached',
+            description: `You cannot assign more than ${guardsRequired} guard(s) to this site.`,
+        });
+        return prev;
       }
 
       const newSelection = [...currentSelection, guardId];
@@ -341,32 +344,8 @@ export default function AgencySitesPage() {
     });
   };
 
-  useEffect(() => {
-    for (const siteId in assignment) {
-      const site = unassignedSites.find(s => s.id.toString() === siteId);
-      if (site) {
-        const selectedGuards = assignment[siteId]?.guardIds || [];
-        const requiredGuards = site.total_guards_requested || 0;
-        if (selectedGuards.length > requiredGuards) {
-          toast({
-            variant: 'destructive',
-            title: 'Guard Limit Reached',
-            description: `You cannot assign more than ${requiredGuards} guard(s) to this site.`,
-          });
-          setAssignment(prev => ({
-            ...prev,
-            [siteId]: {
-              ...prev[siteId],
-              guardIds: selectedGuards.slice(0, requiredGuards)
-            }
-          }));
-        }
-      }
-    }
-  }, [assignment, unassignedSites, toast]);
-
   const handleAssign = async (siteId: string) => {
-    if (!loggedInOrg) return;
+    if (!loggedInOrg || !token) return;
     const assignmentDetails = assignment[siteId];
     const patrollingOfficerId = assignmentDetails?.patrollingOfficerId;
     const guardIds = assignmentDetails?.guardIds || [];
@@ -381,16 +360,11 @@ export default function AgencySitesPage() {
       return;
     }
 
-    const token = localStorage.getItem('token');
-    const API_URL = `${getApiBaseUrl()}/agency/${loggedInOrg.code}/sites/${siteId}/assign_personnel/`;
+    const API_URL = `/agency/${loggedInOrg.code}/sites/${siteId}/assign_personnel/`;
 
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetchData(API_URL, token, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Token ${token}`,
-            },
             body: JSON.stringify({
                 patrol_officer_id: parseInt(patrollingOfficerId, 10),
                 guard_ids: guardIds.map(id => parseInt(id, 10)),
@@ -398,14 +372,9 @@ export default function AgencySitesPage() {
             })
         });
 
-        const responseData = await response.json();
-        if (!response.ok) {
-            throw new Error(responseData.detail || 'Failed to assign site.');
-        }
-
         toast({
           title: 'Site Assigned Successfully',
-          description: responseData.message,
+          description: (response as any).message || 'Personnel have been assigned to the site.',
         });
 
         fetchSites('Assigned', 1);
@@ -419,11 +388,11 @@ export default function AgencySitesPage() {
         });
     }
   };
-  
+
   const renderPatrollingOfficerSelection = (site: Site) => {
      const officersInCity = patrollingOfficers.filter(po => po.city === site.city);
      const officersNotInCity = patrollingOfficers.filter(po => po.city !== site.city);
-     
+
      const renderItems = (officerList: any[]) => officerList.map((po) => {
        const officerName = `${po.name || ''}`.trim();
        return (
@@ -475,7 +444,7 @@ export default function AgencySitesPage() {
         </DropdownMenuCheckboxItem>
       );
     });
-    
+
     if (unassignedGuards.length === 0) {
         return <DropdownMenuLabel>No unassigned guards available</DropdownMenuLabel>;
     }
@@ -638,8 +607,8 @@ export default function AgencySitesPage() {
                   <TableBody>
                   {assignedSites.length > 0 ? (
                     assignedSites.map((site) => (
-                      <TableRow 
-                        key={site.id} 
+                      <TableRow
+                        key={site.id}
                         onClick={() => router.push(`/agency/sites/${site.id}`)}
                         className="cursor-pointer hover:bg-accent hover:text-accent-foreground group"
                       >
@@ -786,7 +755,7 @@ export default function AgencySitesPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handlePagination('next', activeTab === 'assigned' ? 'assigned' : 'unassigned')}
-                            disabled={isLoading || (activeTab === 'assigned' ? assignedCurrentPage === assignedTotalPages : unassignedCurrentPage === unassignedTotalPages)}
+                            disabled={isLoading || (activeTab === 'assigned' ? assignedCurrentPage >= assignedTotalPages : unassignedCurrentPage >= unassignedTotalPages)}
                         >
                             Next
                         </Button>
