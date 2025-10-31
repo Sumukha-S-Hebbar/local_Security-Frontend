@@ -111,12 +111,14 @@ export default function SiteReportPage() {
           const userData = JSON.parse(userDataString);
           setLoggedInOrg(userData.user.organization);
           setToken(userData.token);
+        } else {
+            router.replace('/');
         }
     }
-  }, []);
+  }, [router]);
 
-  const fetchSiteReport = useCallback(async (url: string, isFiltering: boolean = false) => {
-    if (!token) return;
+  const fetchSiteReport = useCallback(async (isFiltering: boolean = false) => {
+    if (!loggedInOrg || !token || !siteId) return;
 
     if (isFiltering) {
       setIsIncidentsLoading(true);
@@ -124,22 +126,36 @@ export default function SiteReportPage() {
       setIsLoading(true);
     }
     
+    const baseUrl = `/orgs/${loggedInOrg.code}/site/${siteId}/`;
+    const params = new URLSearchParams();
+      
+    if (selectedYear !== 'all') params.append('year', selectedYear);
+    if (selectedMonth !== 'all' && !isNaN(parseInt(selectedMonth, 10))) params.append('month', (parseInt(selectedMonth, 10)).toString());
+    if (selectedStatus !== 'all') {
+      let apiStatus = '';
+      if (selectedStatus === 'under-review') {
+        apiStatus = 'Under Review';
+      } else {
+        apiStatus = selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
+      }
+      params.append('incident_status', apiStatus);
+    }
+
+    const fullUrl = `${baseUrl}?${params.toString()}`;
+
     try {
-        const response = await fetchData<{data: SiteReportData}>(url, token);
+        const response = await fetchData<{data: SiteReportData}>(fullUrl, token);
         const data = response?.data;
         
         if (data) {
             setReportData(data);
             setPaginatedIncidents(data.incidents || null);
-        } else if (!isFiltering) {
-            // Only set to null on initial load failure
-            setReportData(null);
+        } else {
+             setReportData(null);
         }
     } catch (error) {
         console.error("Failed to fetch site report:", error);
-        if (!isFiltering) {
-            setReportData(null);
-        }
+        setReportData(null);
         toast({
             variant: "destructive",
             title: "Error",
@@ -149,40 +165,22 @@ export default function SiteReportPage() {
         setIsLoading(false);
         setIsIncidentsLoading(false);
     }
-  }, [toast, token]);
+  }, [siteId, loggedInOrg, token, toast, selectedYear, selectedMonth, selectedStatus]);
   
   useEffect(() => {
-    if (loggedInOrg && siteId && token) {
-      const baseUrl = `/orgs/${loggedInOrg.code}/site/${siteId}/`;
-      const params = new URLSearchParams();
-      
-      const isFiltering = selectedYear !== 'all' || selectedMonth !== 'all' || selectedStatus !== 'all';
-
-      if (selectedYear !== 'all') params.append('year', selectedYear);
-      if (selectedMonth !== 'all') params.append('month', (parseInt(selectedMonth, 10) + 1).toString());
-      if (selectedStatus !== 'all') {
-        let apiStatus = '';
-        if (selectedStatus === 'under-review') {
-          apiStatus = 'Under Review';
-        } else {
-          apiStatus = selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
-        }
-        params.append('incident_status', apiStatus);
-      }
-      
-      const fullUrl = `${baseUrl}?${params.toString()}`;
-      fetchSiteReport(fullUrl, isFiltering); 
+    if (loggedInOrg && token) {
+      fetchSiteReport(); 
     }
-  }, [loggedInOrg, siteId, selectedYear, selectedMonth, selectedStatus, fetchSiteReport, token]);
+  }, [loggedInOrg, token, siteId, selectedYear, selectedMonth, selectedStatus, fetchSiteReport]);
 
 
   const handleIncidentPagination = useCallback(async (url: string | null) => {
       if (!url || !token) return;
       setIsIncidentsLoading(true);
       try {
-        const response = await fetchData<{data: SiteReportData }>(url, token);
-        if (response?.data) {
-          setPaginatedIncidents(response.data.incidents || null);
+        const response = await fetchData<SiteReportData>(url, token);
+        if (response) {
+          setPaginatedIncidents(response.incidents || null);
         }
       } catch (error) {
         console.error("Failed to fetch paginated incidents:", error);
