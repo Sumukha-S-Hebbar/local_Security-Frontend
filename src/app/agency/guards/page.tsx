@@ -86,15 +86,17 @@ type ApiCity = {
     name: string;
 }
 
-async function fetchData<T>(url: string, token: string | undefined): Promise<T | null> {
+async function fetchData<T>(url: string, token: string | undefined, options?: RequestInit): Promise<T | null> {
     try {
         const baseUrl = getApiBaseUrl();
         const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
         
         const response = await fetch(fullUrl, {
+            ...options,
             headers: {
                 'Authorization': `Token ${token}`,
                 'Content-Type': 'application/json',
+                ...options?.headers,
             }
         });
 
@@ -126,7 +128,7 @@ export default function AgencyGuardsPage() {
   const [patrollingOfficers, setPatrollingOfficers] = useState<PatrollingOfficer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loggedInOrg, setLoggedInOrg] = useState<Organization | null>(null);
-  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+  const [countryId, setCountryId] = useState<number | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -153,14 +155,14 @@ export default function AgencyGuardsPage() {
         if (userDataString) {
             const userData = JSON.parse(userDataString);
             setLoggedInOrg(userData.user.organization);
-            setLoggedInUser(userData.user.user);
+            setCountryId(userData.user.country?.id);
             setToken(userData.token);
         }
     }
   }, []);
 
   const fetchGuards = useCallback(async (status: 'checked-in' | 'checked-out', page: number) => {
-    if (!loggedInOrg) return;
+    if (!loggedInOrg || !token) return;
     setIsLoading(true);
     
     const orgCode = loggedInOrg.code;
@@ -176,7 +178,7 @@ export default function AgencyGuardsPage() {
     const url = `/agency/${orgCode}/guards/list/?check_in_status=${checkInStatus}&${params.toString()}`;
 
     try {
-        const response = await fetchData<PaginatedGuardsResponse>(url, token || undefined);
+        const response = await fetchData<PaginatedGuardsResponse>(url, token);
         if (status === 'checked-in') {
             setCheckedInGuards(response?.results || []);
             setCheckedInCount(response?.count || 0);
@@ -193,14 +195,14 @@ export default function AgencyGuardsPage() {
 
 
   useEffect(() => {
-    if (loggedInOrg) {
+    if (loggedInOrg && token) {
       if (activeTab === 'checked-in') {
         fetchGuards('checked-in', checkedInCurrentPage);
       } else {
         fetchGuards('checked-out', checkedOutCurrentPage);
       }
     }
-  }, [loggedInOrg, fetchGuards, activeTab, checkedInCurrentPage, checkedOutCurrentPage]);
+  }, [loggedInOrg, token, fetchGuards, activeTab, checkedInCurrentPage, checkedOutCurrentPage]);
   
   useEffect(() => {
       setCheckedInCurrentPage(1);
@@ -212,7 +214,7 @@ export default function AgencyGuardsPage() {
             fetchGuards('checked-out', 1);
         }
       }
-  }, [searchQuery, activeTab, loggedInOrg, fetchGuards]);
+  }, [searchQuery, loggedInOrg, fetchGuards]);
 
     const handlePagination = (direction: 'next' | 'prev') => {
         if (activeTab === 'checked-in') {
@@ -237,15 +239,14 @@ export default function AgencyGuardsPage() {
   const watchedRegion = addGuardForm.watch('region');
 
   const handleAddGuardClick = async () => {
-      if (!loggedInUser || !loggedInUser.country?.id) {
+      if (!countryId || !token) {
           toast({ variant: "destructive", title: "Error", description: "User country not found. Cannot fetch regions." });
           return;
       }
       
-      const countryId = loggedInUser.country.id;
       const url = `/regions/?country=${countryId}`;
       try {
-        const data = await fetchData<{ regions: ApiRegion[] }>(url, token || undefined);
+        const data = await fetchData<{ regions: ApiRegion[] }>(url, token);
         setApiRegions(data?.regions || []);
         setIsAddDialogOpen(true);
       } catch (error) {
@@ -260,17 +261,16 @@ export default function AgencyGuardsPage() {
 
   useEffect(() => {
       async function fetchCities() {
-          if (!watchedRegion || !loggedInUser || !loggedInUser.country?.id) {
+          if (!watchedRegion || !countryId || !token) {
               setApiCities([]);
               return;
           }
           
           setIsCitiesLoading(true);
-          const countryId = loggedInUser.country.id;
           const url = `/cities/?country=${countryId}&region=${watchedRegion}`;
 
           try {
-              const data = await fetchData<{ cities: ApiCity[] }>(url, token || undefined);
+              const data = await fetchData<{ cities: ApiCity[] }>(url, token);
               setApiCities(data?.cities || []);
           } catch (error) {
               console.error("Failed to fetch cities:", error);
@@ -289,7 +289,7 @@ export default function AgencyGuardsPage() {
         addGuardForm.setValue('city', '');
         fetchCities();
       }
-  }, [watchedRegion, loggedInUser, toast, addGuardForm, token]);
+  }, [watchedRegion, countryId, toast, addGuardForm, token]);
 
 
   async function onUploadSubmit(values: z.infer<typeof uploadFormSchema>) {
@@ -310,7 +310,7 @@ export default function AgencyGuardsPage() {
   async function onAddGuardSubmit(values: z.infer<typeof addGuardFormSchema>) {
     setIsAdding(true);
     
-    if (!loggedInOrg) {
+    if (!loggedInOrg || !token) {
         toast({ variant: 'destructive', title: 'Error', description: 'Organization information not found.'});
         setIsAdding(false);
         return;
@@ -369,7 +369,7 @@ export default function AgencyGuardsPage() {
   }
 
   const handleRequestRandomSelfie = async () => {
-    if (!loggedInOrg) {
+    if (!loggedInOrg || !token) {
       toast({ variant: 'destructive', title: 'Error', description: 'Organization info not available.' });
       return;
     }
@@ -884,5 +884,7 @@ export default function AgencyGuardsPage() {
     </>
   );
 }
+
+    
 
     
