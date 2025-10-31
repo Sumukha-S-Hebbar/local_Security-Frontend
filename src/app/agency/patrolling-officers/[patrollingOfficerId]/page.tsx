@@ -103,6 +103,7 @@ export default function AgencyPatrollingOfficerReportPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isIncidentsLoading, setIsIncidentsLoading] = useState(false);
   const [loggedInOrg, setLoggedInOrg] = useState<Organization | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   const [selectedMonth, setSelectedMonth] = useState('all');
   const [selectedYear, setSelectedYear] = useState('all');
@@ -116,20 +117,23 @@ export default function AgencyPatrollingOfficerReportPage() {
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-        const orgData = localStorage.getItem('organization');
-        if (orgData) {
-            setLoggedInOrg(JSON.parse(orgData));
+        const userDataString = localStorage.getItem('userData');
+        if (userDataString) {
+            const userData = JSON.parse(userDataString);
+            setLoggedInOrg(userData.user.organization);
+            setToken(userData.token);
         }
     }
   }, []);
 
   const fetchReportData = useCallback(async (url: string, isFiltering: boolean = false) => {
+    if (!token) return;
+
     if (isFiltering) {
       setIsIncidentsLoading(true);
     } else {
       setIsLoading(true);
     }
-    const token = localStorage.getItem('token') || undefined;
 
     try {
         const data = await fetchData<OfficerReportData>(url, token);
@@ -149,10 +153,10 @@ export default function AgencyPatrollingOfficerReportPage() {
           setIsLoading(false);
         }
     }
-  }, [toast]);
+  }, [toast, token]);
   
   useEffect(() => {
-    if (loggedInOrg && patrollingOfficerId) {
+    if (loggedInOrg && patrollingOfficerId && token) {
       const baseUrl = `/agency/${loggedInOrg.code}/patrol_officer/${patrollingOfficerId}/`;
       const params = new URLSearchParams();
 
@@ -170,13 +174,20 @@ export default function AgencyPatrollingOfficerReportPage() {
       
       const fullUrl = `${baseUrl}?${params.toString()}`;
       fetchReportData(fullUrl, false);
+    } else if (!token && !loggedInOrg) {
+        // Still loading user data
+        setIsLoading(true);
+    } else if (token && loggedInOrg) {
+        // Data is loaded, proceed with initial fetch
+        setIsLoading(false);
     }
-  }, [loggedInOrg, patrollingOfficerId, selectedYear, selectedMonth, selectedStatus, fetchReportData]);
+
+
+  }, [loggedInOrg, patrollingOfficerId, selectedYear, selectedMonth, selectedStatus, fetchReportData, token]);
 
   const handleIncidentPagination = useCallback(async (url: string | null) => {
-      if (!url) return;
+      if (!url || !token) return;
       setIsIncidentsLoading(true);
-      const token = localStorage.getItem('token') || undefined;
       try {
         const data = await fetchData<{incidents: PaginatedIncidents}>(url, token);
         setPaginatedIncidents(data?.incidents || null);
@@ -186,7 +197,7 @@ export default function AgencyPatrollingOfficerReportPage() {
       } finally {
         setIsIncidentsLoading(false);
       }
-  }, [toast]);
+  }, [toast, token]);
 
   const availableYears = useMemo(() => {
     if (!reportData || !reportData.incidents) return [];
@@ -216,7 +227,7 @@ export default function AgencyPatrollingOfficerReportPage() {
   ];
   const COLORS_SITE_VISIT = [siteVisitColor, 'hsl(var(--muted))'];
 
-  if (isLoading) {
+  if (isLoading || !loggedInOrg) {
     return (
         <div className="p-4 sm:p-6 lg:p-8 space-y-6">
             <Skeleton className="h-12 w-1/2" />
@@ -332,7 +343,7 @@ export default function AgencyPatrollingOfficerReportPage() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Patrolling Officer Report</h1>
-            <p className="text-muted-foreground font-medium">Detailed overview for ${officerName}.</p>
+            <p className="text-muted-foreground font-medium">Detailed overview for {officerName}.</p>
           </div>
         </div>
         <Button onClick={handleDownloadReport} className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 w-56">
@@ -351,8 +362,8 @@ export default function AgencyPatrollingOfficerReportPage() {
                         <AvatarFallback>{officerName.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <CardTitle className="text-2xl">${officerName}</CardTitle>
-                        <p className="font-medium text-foreground">ID: ${reportData.employee_id}</p>
+                        <CardTitle className="text-2xl">{officerName}</CardTitle>
+                        <p className="font-medium text-foreground">ID: {reportData.employee_id}</p>
                       </div>
                     </div>
                   </CardHeader>
@@ -484,7 +495,7 @@ export default function AgencyPatrollingOfficerReportPage() {
       <Card ref={assignedSitesTableRef}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><MapPin className="h-5 w-5"/>Assigned Sites</CardTitle>
-          <CardDescription className="font-medium">A detailed list of all sites assigned to ${officerName}.</CardDescription>
+          <CardDescription className="font-medium">A detailed list of all sites assigned to {officerName}.</CardDescription>
         </CardHeader>
         <CardContent>
           {reportData.assigned_sites.length > 0 ? (
@@ -598,7 +609,7 @@ export default function AgencyPatrollingOfficerReportPage() {
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div className="flex-grow">
             <CardTitle>Incidents Log</CardTitle>
-            <CardDescription className="font-medium">A log of emergency incidents at sites managed by ${officerName}.</CardDescription>
+            <CardDescription className="font-medium">A log of emergency incidents at sites managed by {officerName}.</CardDescription>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
@@ -692,7 +703,7 @@ export default function AgencyPatrollingOfficerReportPage() {
           <CardFooter>
             <div className="flex items-center justify-between w-full">
               <div className="text-sm text-muted-foreground font-medium">
-                  Showing ${paginatedIncidents.results.length} of ${paginatedIncidents.count} incidents.
+                  Showing {paginatedIncidents.results.length} of {paginatedIncidents.count} incidents.
               </div>
               <div className="flex items-center gap-2">
                   <Button
@@ -721,3 +732,5 @@ export default function AgencyPatrollingOfficerReportPage() {
     </div>
   );
 }
+
+    
