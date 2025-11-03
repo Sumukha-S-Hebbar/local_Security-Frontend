@@ -79,6 +79,10 @@ export default function RootPage() {
     event.preventDefault();
     setIsLoading(true);
 
+    if (typeof window !== 'undefined') {
+      console.log('Domain being read:', window.location.host);
+    }
+
     try {
       if (!username || !password) {
         throw new Error('Username and password are required.');
