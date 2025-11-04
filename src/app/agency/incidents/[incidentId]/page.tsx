@@ -152,7 +152,7 @@ export default function AgencyIncidentReportPage() {
                 const data = response.data;
                 setIncident(data);
                 setDescription(data.incident_description || '');
-                if (data.incident_type !== 'SOS' && incidentTypes.includes(data.incident_type as any)) {
+                if (incidentTypes.includes(data.incident_type as any)) {
                     setIncidentType(data.incident_type as typeof incidentTypes[number]);
                 }
             } else {
@@ -351,8 +351,6 @@ export default function AgencyIncidentReportPage() {
     );
   };
 
-  const isSosCase = incident.incident_type === 'SOS';
-
   return (
     <>
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -486,14 +484,6 @@ export default function AgencyIncidentReportPage() {
         <CardContent>
           <div className="space-y-6 divide-y">
             <div className="space-y-6 pt-2">
-              {incident.incident_description && (
-                <div>
-                  <h4 className="font-semibold mb-2 text-lg">
-                    Incident Summary
-                  </h4>
-                  <p className="text-muted-foreground">{incident.incident_description}</p>
-                </div>
-              )}
               {renderMediaGallery(initialMediaUrls, "Incident Media Evidence", getHintForIncident(incident))}
             </div>
 
@@ -508,7 +498,7 @@ export default function AgencyIncidentReportPage() {
                 </Alert>
                 <div className="space-y-4 pt-6">
                   <h3 className="text-xl font-semibold">Initial Incident Report</h3>
-                  {isSosCase && (
+                  
                   <div>
                     <Label htmlFor="incident-type" className="text-base">Incident Type</Label>
                     <Select value={incidentType} onValueChange={(value) => setIncidentType(value as typeof incidentTypes[number])}>
@@ -522,7 +512,7 @@ export default function AgencyIncidentReportPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  )}
+                  
                   <div>
                     <Label htmlFor="description" className="text-base">Incident Summary</Label>
                     <Textarea
@@ -572,7 +562,15 @@ export default function AgencyIncidentReportPage() {
 
             {incident.incident_status === 'Under Review' && (
               <div className="pt-6">
-                <Alert variant="default">
+                {incident.incident_description && (
+                  <div>
+                    <h4 className="font-semibold mb-2 text-lg">
+                      Incident Summary
+                    </h4>
+                    <p className="text-muted-foreground">{incident.incident_description}</p>
+                  </div>
+                )}
+                <Alert variant="default" className='mt-6'>
                   <Info className="h-4 w-4" />
                   <AlertTitle>Awaiting Resolution</AlertTitle>
                   <AlertDescription>
@@ -582,18 +580,26 @@ export default function AgencyIncidentReportPage() {
               </div>
             )}
             
-            {incident.incident_status === 'Resolved' && resolvedMediaUrls.length > 0 && (
+            {incident.incident_status === 'Resolved' && (
                 <div className="pt-6">
+                     {incident.incident_description && (
+                      <div className="pb-6">
+                        <h4 className="font-semibold mb-2 text-lg">
+                          Incident Summary
+                        </h4>
+                        <p className="text-muted-foreground">{incident.incident_description}</p>
+                      </div>
+                    )}
                      {renderMediaGallery(resolvedMediaUrls, "Resolution Media Evidence", "resolution document")}
+                      {incident.resolution_notes && (
+                        <div className="pt-6">
+                            <h4 className="font-semibold mb-2 text-lg">Resolution Notes</h4>
+                            <p className="text-muted-foreground">{incident.resolution_notes}</p>
+                        </div>
+                      )}
                 </div>
             )}
 
-            {incident.incident_status === 'Resolved' && incident.resolution_notes && (
-                 <div className="pt-6">
-                    <h4 className="font-semibold mb-2 text-lg">Resolution Notes</h4>
-                    <p className="text-muted-foreground">{incident.resolution_notes}</p>
-                </div>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -624,5 +630,3 @@ export default function AgencyIncidentReportPage() {
     </>
   );
 }
-
-    
