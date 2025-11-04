@@ -106,6 +106,17 @@ export function AgencyIncidentChart({
 
   const [incidentsInSelectedMonth, setIncidentsInSelectedMonth] = useState<IncidentListItem[]>([]);
   const [isDetailsLoading, setIsDetailsLoading] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const userDataString = localStorage.getItem('userData');
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
+        setToken(userData.token);
+      }
+    }
+  }, []);
 
 
   const monthlyIncidentData = useMemo(() => {
@@ -125,10 +136,9 @@ export function AgencyIncidentChart({
 
 
   const fetchMonthIncidents = useCallback(async (monthIndex: number) => {
-    if (!orgCode) return;
+    if (!orgCode || !token) return;
     setIsDetailsLoading(true);
 
-    const token = localStorage.getItem('token') || undefined;
     const month = monthIndex + 1;
     
     const params = new URLSearchParams({
@@ -147,7 +157,7 @@ export function AgencyIncidentChart({
     } finally {
         setIsDetailsLoading(false);
     }
-  }, [orgCode, selectedYear]);
+  }, [orgCode, selectedYear, token]);
 
   const handleBarClick = useCallback((data: any, index: number) => {
     const monthIndex = index;
