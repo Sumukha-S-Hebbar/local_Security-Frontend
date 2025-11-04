@@ -497,7 +497,7 @@ export default function AgencyIncidentReportPage() {
               {renderMediaGallery(initialMediaUrls, "Incident Media Evidence", getHintForIncident(incident))}
             </div>
 
-            {incident.incident_status === 'Active' && isSosCase && (
+            {incident.incident_status === 'Active' && (
               <form onSubmit={handleSaveIncidentDetails} className="space-y-6 pt-6">
                 <Alert variant="default" className="text-left">
                   <Info className="h-4 w-4" />
@@ -508,6 +508,7 @@ export default function AgencyIncidentReportPage() {
                 </Alert>
                 <div className="space-y-4 pt-6">
                   <h3 className="text-xl font-semibold">Initial Incident Report</h3>
+                  {isSosCase && (
                   <div>
                     <Label htmlFor="incident-type" className="text-base">Incident Type</Label>
                     <Select value={incidentType} onValueChange={(value) => setIncidentType(value as typeof incidentTypes[number])}>
@@ -521,6 +522,7 @@ export default function AgencyIncidentReportPage() {
                       </SelectContent>
                     </Select>
                   </div>
+                  )}
                   <div>
                     <Label htmlFor="description" className="text-base">Incident Summary</Label>
                     <Textarea
@@ -534,7 +536,7 @@ export default function AgencyIncidentReportPage() {
                   </div>
                   {availableSlots > 0 && (
                     <div>
-                      <Label htmlFor="active-incident-photos" className="text-base">Upload Media (Optional, {availableSlots} slots left)</Label>
+                      <Label htmlFor="active-incident-photos" className="text-base">Upload Images (Optional, {availableSlots} slots left)</Label>
                       <Input
                         id="active-incident-photos"
                         type="file"
@@ -555,6 +557,7 @@ export default function AgencyIncidentReportPage() {
                         }}
                         accept="image/jpeg, image/png"
                       />
+                      <p className="text-sm text-muted-foreground mt-2">Please upload only images in JPG or PNG format.</p>
                     </div>
                   )}
                 </div>
@@ -574,51 +577,4 @@ export default function AgencyIncidentReportPage() {
                   <AlertTitle>Awaiting Resolution</AlertTitle>
                   <AlertDescription>
                     This incident report has been submitted. The TOWERCO/MNO will review and resolve this incident. No further action is required from the agency at this time.
-                  </AlertDescription>
-                </Alert>
-              </div>
-            )}
-
-            {incident.incident_status === 'Resolved' && (
-              <div className="space-y-6 pt-6">
-                {incident.resolution_notes && (
-                  <div>
-                    <h4 className="font-semibold mb-2 text-lg">
-                      Resolution Notes
-                    </h4>
-                    <p className="text-muted-foreground">{incident.resolution_notes}</p>
-                  </div>
-                )}
-                {renderMediaGallery(resolvedMediaUrls, "Resolution Media Evidence", 'report document')}
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-    {lightboxImage && (
-      <div 
-        className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 animate-in fade-in-0"
-        onClick={() => setLightboxImage(null)}
-      >
-        <button 
-            className="absolute top-4 right-4 text-white hover:text-white/80 transition-opacity"
-            onClick={() => setLightboxImage(null)}
-        >
-            <X className="h-8 w-8" />
-        </button>
-        <div className="relative max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
-            <Image 
-                src={lightboxImage} 
-                alt="Enlarged incident evidence" 
-                width={1200}
-                height={800}
-                unoptimized
-                className="rounded-lg object-contain max-w-full max-h-[90vh]"
-            />
-        </div>
-      </div>
-    )}
-    </>
-  );
-}
+                  </Aler…
