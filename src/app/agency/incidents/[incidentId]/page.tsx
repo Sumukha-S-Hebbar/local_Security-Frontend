@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -38,7 +39,7 @@ const incidentTypes = [
     'SOS',
     'Theft',
     'Vandalism',
-    'Trespassing',
+    'Tresspassing',
     'Suspicious Activity',
     'Safety Hazard',
     'Others',
@@ -206,15 +207,13 @@ export default function AgencyIncidentReportPage() {
   
   const handleSaveIncidentDetails = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (incident.incident_type === 'SOS') {
-        if (!incidentType) {
-            toast({ variant: 'destructive', title: 'Error', description: 'Incident type is required.' });
-            return;
-        }
-        if (!description) {
-            toast({ variant: 'destructive', title: 'Error', description: 'Incident description is required.' });
-            return;
-        }
+    if (!incidentType) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Incident type is required.' });
+        return;
+    }
+    if (!description) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Incident description is required.' });
+        return;
     }
     
     if (!loggedInOrg || !token) return;
@@ -484,7 +483,15 @@ export default function AgencyIncidentReportPage() {
         <CardContent>
           <div className="space-y-6 divide-y">
             <div className="space-y-6 pt-2">
-              {renderMediaGallery(initialMediaUrls, "Incident Media Evidence", getHintForIncident(incident))}
+                {incident.incident_status !== 'Active' && incident.incident_description && (
+                     <div>
+                        <h4 className="font-semibold mb-2 text-lg">
+                          Incident Summary
+                        </h4>
+                        <p className="text-muted-foreground">{incident.incident_description}</p>
+                      </div>
+                )}
+                {renderMediaGallery(initialMediaUrls, "Incident Media Evidence", getHintForIncident(incident))}
             </div>
 
             {incident.incident_status === 'Active' && (
@@ -630,3 +637,4 @@ export default function AgencyIncidentReportPage() {
     </>
   );
 }
+
