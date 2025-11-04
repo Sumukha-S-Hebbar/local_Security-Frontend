@@ -472,7 +472,7 @@ export default function IncidentReportPage() {
                 {new Date(incident.incident_time).toLocaleString()}
               </CardDescription>
             </div>
-            {incident.incident_type && (
+            {incident.incident_type && incident.incident_type !== 'SOS' && (
               <div className="text-right">
                 <CardTitle className="text-xl font-bold">Incident Type</CardTitle>
                 <Badge variant="destructive" className="mt-1">{incident.incident_type}</Badge>
@@ -543,7 +543,7 @@ export default function IncidentReportPage() {
                                         multiple
                                         className="mt-2"
                                         onChange={(e) => setResolutionFiles(e.target.files)}
-                                        accept="image/*,video/*,.pdf"
+                                        accept="image/jpeg, image/png"
                                     />
                                 </div>
                             </div>

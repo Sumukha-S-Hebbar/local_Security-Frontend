@@ -206,20 +206,22 @@ export default function AgencyIncidentReportPage() {
   
   const handleSaveIncidentDetails = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!incidentType) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Incident type is required.' });
-        return;
-    }
-    if (!description) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Incident description is required.' });
-        return;
+    if (incident.incident_type === 'SOS') {
+        if (!incidentType) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Incident type is required.' });
+            return;
+        }
+        if (!description) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Incident description is required.' });
+            return;
+        }
     }
     
     if (!loggedInOrg || !token) return;
 
     const formData = new FormData();
-    formData.append('incident_type', incidentType);
-    formData.append('incident_description', description);
+    if(incidentType) formData.append('incident_type', incidentType);
+    if(description) formData.append('incident_description', description);
     
     if (incidentFiles) {
         const startIdx = initialMediaUrls.length + 1;
@@ -349,6 +351,8 @@ export default function AgencyIncidentReportPage() {
     );
   };
 
+  const isSosCase = incident.incident_type === 'SOS';
+
   return (
     <>
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -471,7 +475,7 @@ export default function AgencyIncidentReportPage() {
                 {new Date(incident.incident_time).toLocaleString()}
               </CardDescription>
             </div>
-            {incident.incident_type && (
+            {incident.incident_type && incident.incident_type !== 'SOS' && (
               <div className="text-right">
                  <CardTitle className="text-xl font-bold">Incident Type</CardTitle>
                 <Badge variant="destructive" className="mt-1">{incident.incident_type}</Badge>
@@ -493,7 +497,7 @@ export default function AgencyIncidentReportPage() {
               {renderMediaGallery(initialMediaUrls, "Incident Media Evidence", getHintForIncident(incident))}
             </div>
 
-            {incident.incident_status === 'Active' && (
+            {incident.incident_status === 'Active' && isSosCase && (
               <form onSubmit={handleSaveIncidentDetails} className="space-y-6 pt-6">
                 <Alert variant="default" className="text-left">
                   <Info className="h-4 w-4" />
@@ -536,8 +540,20 @@ export default function AgencyIncidentReportPage() {
                         type="file"
                         multiple
                         className="mt-2"
-                        onChange={(e) => setIncidentFiles(e.target.files)}
-                        accept="image/*"
+                        onChange={(e) => {
+                            if (e.target.files && e.target.files.length > availableSlots) {
+                                toast({
+                                    variant: "destructive",
+                                    title: "Too many files",
+                                    description: `You can only upload ${availableSlots} more file(s).`
+                                });
+                                e.target.value = ''; // Clear the selection
+                                setIncidentFiles(null);
+                            } else {
+                                setIncidentFiles(e.target.files);
+                            }
+                        }}
+                        accept="image/jpeg, image/png"
                       />
                     </div>
                   )}
