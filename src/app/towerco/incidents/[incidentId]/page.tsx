@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -19,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { fetchData } from '@/lib/api';
@@ -483,17 +482,17 @@ export default function IncidentReportPage() {
         </CardHeader>
         <CardContent>
             <div className="space-y-6 divide-y">
-                {incident.incident_description && (
-                     <div className="space-y-6">
+                <div className="space-y-6 pt-2">
+                    {incident.incident_description && (
                         <div>
-                          <h4 className="font-semibold mb-2 text-lg">
-                              Incident Summary
-                          </h4>
-                          <p className="text-muted-foreground">{incident.incident_description}</p>
+                        <h4 className="font-semibold mb-2 text-lg">
+                            Incident Summary
+                        </h4>
+                        <p className="text-muted-foreground">{incident.incident_description}</p>
                         </div>
-                        {renderMediaGallery(initialMediaUrls, "Incident Media Evidence", getHintForIncident(incident))}
-                     </div>
-                )}
+                    )}
+                    {renderMediaGallery(initialMediaUrls, "Incident Media Evidence", getHintForIncident(incident))}
+                </div>
                 
                 {incident.incident_status === 'Active' && (
                   <div className="pt-6">

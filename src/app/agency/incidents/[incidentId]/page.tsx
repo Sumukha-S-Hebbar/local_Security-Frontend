@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -19,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
@@ -128,6 +127,17 @@ export default function AgencyIncidentReportPage() {
     }
   }, []);
 
+  const initialMediaUrls = useMemo(() => {
+    if (!incident) return [];
+    return [
+      incident.initial_incident_image_1,
+      incident.initial_incident_image_2,
+      incident.initial_incident_image_3,
+      incident.initial_incident_image_4,
+    ].filter((url): url is string => url !== null);
+  }, [incident]);
+
+  const availableSlots = 4 - initialMediaUrls.length;
 
   useEffect(() => {
     if (!loggedInOrg || !incidentId) return;
@@ -212,8 +222,9 @@ export default function AgencyIncidentReportPage() {
     formData.append('incident_description', description);
     
     if (incidentFiles) {
-        for (let i = 0; i < incidentFiles.length && i < 4; i++) {
-            formData.append(`initial_incident_image_${i + 1}`, incidentFiles[i]);
+        const startIdx = initialMediaUrls.length + 1;
+        for (let i = 0; i < incidentFiles.length && i < availableSlots; i++) {
+            formData.append(`initial_incident_image_${startIdx + i}`, incidentFiles[i]);
         }
     }
     
@@ -238,6 +249,9 @@ export default function AgencyIncidentReportPage() {
             title: "Incident Details Saved",
             description: `Initial report for incident #${incident.incident_id} has been saved and is now under review.`
         });
+        
+        router.refresh();
+
 
     } catch (error: any) {
          toast({
@@ -301,9 +315,15 @@ export default function AgencyIncidentReportPage() {
     return 'incident evidence';
   };
   
-  const renderMediaGallery = (urls: (string | null)[], title: string, hint: string) => {
-    const validUrls = urls.filter((url): url is string => url !== null);
-    if (validUrls.length === 0) {
+  const resolvedMediaUrls = [
+      incident.resolved_incident_image_1,
+      incident.resolved_incident_image_2,
+      incident.resolved_incident_image_3,
+      incident.resolved_incident_image_4,
+  ].filter((url): url is string => url !== null);
+
+  const renderMediaGallery = (urls: string[], title: string, hint: string) => {
+    if (urls.length === 0) {
       return null;
     }
     return (
@@ -312,7 +332,7 @@ export default function AgencyIncidentReportPage() {
               {title}
           </h4>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-              {validUrls.map((src, index) => (
+              {urls.map((src, index) => (
                   <div key={index} className="relative aspect-video" onClick={() => setLightboxImage(src)}>
                   <Image
                       src={src}
@@ -460,104 +480,105 @@ export default function AgencyIncidentReportPage() {
           </div>
         </CardHeader>
         <CardContent>
-            <div className="space-y-6 divide-y">
-              {incident.incident_status === 'Active' && (
-                 <form onSubmit={handleSaveIncidentDetails} className="space-y-6">
-                    <Alert variant="default" className="text-left">
-                        <Info className="h-4 w-4" />
-                        <AlertTitle>Incident is Active</AlertTitle>
-                        <AlertDescription>
-                        This incident requires your attention. Categorize the incident, add a summary, and upload any available media. Saving these details will move the incident to "Under Review".
-                        </AlertDescription>
-                    </Alert>
-                   <div className="space-y-4 pt-6">
-                      <h3 className="text-xl font-semibold">Initial Incident Report</h3>
-                       <div>
-                        <Label htmlFor="incident-type" className="text-base">Incident Type</Label>
-                        <Select value={incidentType} onValueChange={(value) => setIncidentType(value as typeof incidentTypes[number])}>
-                          <SelectTrigger id="incident-type" className="mt-2">
-                            <SelectValue placeholder="Select an incident type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {incidentTypes.map(type => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                            <Label htmlFor="description" className="text-base">Incident Summary</Label>
-                            <Textarea 
-                                id="description" 
-                                className="mt-2" 
-                                placeholder="Provide a detailed summary of what happened, who was involved, and the immediate actions taken..." 
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                rows={5}
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="active-incident-photos" className="text-base">Upload Media (Optional)</Label>
-                            <Input 
-                                id="active-incident-photos" 
-                                type="file"
-                                multiple
-                                className="mt-2"
-                                onChange={(e) => setIncidentFiles(e.target.files)}
-                                accept="image/*"
-                            />
-                       </div>
-                   </div>
-
-                    <CardFooter className="px-0 pt-6 justify-end">
-                        <Button type="submit" className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 w-56">
-                            Save and Start Review
-                        </Button>
-                    </CardFooter>
-                 </form>
-              )}
-              
-              {(incident.incident_status === 'Under Review' || incident.incident_status === 'Resolved') && (
-                <div className="space-y-6 pt-6">
-                  <div>
-                      <h4 className="font-semibold mb-2 text-lg">
-                          Incident Summary
-                      </h4>
-                      <p className="text-muted-foreground">{incident.incident_description}</p>
-                  </div>
-                  {renderMediaGallery([incident.initial_incident_image_1, incident.initial_incident_image_2, incident.initial_incident_image_3, incident.initial_incident_image_4], "Incident Media Evidence", getHintForIncident(incident))}
-                  
-                  {incident.incident_status === 'Under Review' && (
-                    <div>
-                        <Alert variant="default">
-                          <Info className="h-4 w-4" />
-                          <AlertTitle>Awaiting Resolution</AlertTitle>
-                          <AlertDescription>
-                            This incident report has been submitted. The TOWERCO/MNO will review and resolve this incident. No further action is required from the agency at this time.
-                          </AlertDescription>
-                        </Alert>
-                    </div>
-                  )}
-
-                  {incident.incident_status === 'Resolved' && (
-                      <div className="space-y-6">
-                          {incident.resolution_notes && (
-                            <div className="pt-6">
-                                <h4 className="font-semibold mb-2 text-lg">
-                                    Resolution Notes
-                                </h4>
-                                <p className="text-muted-foreground">{incident.resolution_notes}</p>
-                            </div>
-                          )}
-                           {renderMediaGallery([incident.resolved_incident_image_1, incident.resolved_incident_image_2, incident.resolved_incident_image_3, incident.resolved_incident_image_4], "Resolution Media Evidence", 'report document')}
-                      </div>
-                  )}
+          <div className="space-y-6 divide-y">
+            <div className="space-y-6 pt-2">
+              {incident.incident_description && (
+                <div>
+                  <h4 className="font-semibold mb-2 text-lg">
+                    Incident Summary
+                  </h4>
+                  <p className="text-muted-foreground">{incident.incident_description}</p>
                 </div>
               )}
+              {renderMediaGallery(initialMediaUrls, "Incident Media Evidence", getHintForIncident(incident))}
             </div>
+
+            {incident.incident_status === 'Active' && (
+              <form onSubmit={handleSaveIncidentDetails} className="space-y-6 pt-6">
+                <Alert variant="default" className="text-left">
+                  <Info className="h-4 w-4" />
+                  <AlertTitle>Incident is Active</AlertTitle>
+                  <AlertDescription>
+                    This incident requires your attention. Categorize the incident, add a summary, and upload any available media. Saving these details will move the incident to "Under Review".
+                  </AlertDescription>
+                </Alert>
+                <div className="space-y-4 pt-6">
+                  <h3 className="text-xl font-semibold">Initial Incident Report</h3>
+                  <div>
+                    <Label htmlFor="incident-type" className="text-base">Incident Type</Label>
+                    <Select value={incidentType} onValueChange={(value) => setIncidentType(value as typeof incidentTypes[number])}>
+                      <SelectTrigger id="incident-type" className="mt-2">
+                        <SelectValue placeholder="Select an incident type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {incidentTypes.map(type => (
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="description" className="text-base">Incident Summary</Label>
+                    <Textarea
+                      id="description"
+                      className="mt-2"
+                      placeholder="Provide a detailed summary of what happened, who was involved, and the immediate actions taken..."
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows={5}
+                    />
+                  </div>
+                  {availableSlots > 0 && (
+                    <div>
+                      <Label htmlFor="active-incident-photos" className="text-base">Upload Media (Optional, {availableSlots} slots left)</Label>
+                      <Input
+                        id="active-incident-photos"
+                        type="file"
+                        multiple
+                        className="mt-2"
+                        onChange={(e) => setIncidentFiles(e.target.files)}
+                        accept="image/*"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <CardFooter className="px-0 pt-6 justify-end">
+                  <Button type="submit" className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 w-56">
+                    Save and Start Review
+                  </Button>
+                </CardFooter>
+              </form>
+            )}
+
+            {incident.incident_status === 'Under Review' && (
+              <div className="pt-6">
+                <Alert variant="default">
+                  <Info className="h-4 w-4" />
+                  <AlertTitle>Awaiting Resolution</AlertTitle>
+                  <AlertDescription>
+                    This incident report has been submitted. The TOWERCO/MNO will review and resolve this incident. No further action is required from the agency at this time.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
+            {incident.incident_status === 'Resolved' && (
+              <div className="space-y-6 pt-6">
+                {incident.resolution_notes && (
+                  <div>
+                    <h4 className="font-semibold mb-2 text-lg">
+                      Resolution Notes
+                    </h4>
+                    <p className="text-muted-foreground">{incident.resolution_notes}</p>
+                  </div>
+                )}
+                {renderMediaGallery(resolvedMediaUrls, "Resolution Media Evidence", 'report document')}
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
-
     </div>
     {lightboxImage && (
       <div 
