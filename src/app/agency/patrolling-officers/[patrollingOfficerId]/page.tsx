@@ -157,7 +157,7 @@ export default function AgencyPatrollingOfficerReportPage() {
   
   useEffect(() => {
     if (loggedInOrg && patrollingOfficerId && token) {
-      const baseUrl = `/agency/${loggedInOrg.code}/patrol_officer/${patrollingOfficerId}/`;
+      const baseUrl = `/agency/security/${loggedInOrg.code}/patrol_officer/${patrollingOfficerId}/`;
       const params = new URLSearchParams();
 
       if (selectedYear !== 'all') params.append('year', selectedYear);
