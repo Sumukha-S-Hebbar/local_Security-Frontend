@@ -12,7 +12,7 @@ type Module = {
 };
 
 const allModules: Module[] = [
-  { name: 'Real Estate', href: 'https://ken.towerbuddy.tel/dashboard' },
+  { name: 'Real Estate', href: '#' }, // Dynamic href
   { name: 'Security', href: '#' }, // Href will be replaced by portal-specific home
   { name: 'Energy', href: '#' },
   { name: 'Incident Management', href: '#' },
@@ -23,10 +23,12 @@ const allModules: Module[] = [
 export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/towerco/home' }) {
   const pathname = usePathname();
   const [enabledModules, setEnabledModules] = useState<string[]>([]);
+  const [origin, setOrigin] = useState('');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const userDataString = localStorage.getItem('userData');
+      setOrigin(window.location.origin);
       if (userDataString) {
         try {
           const userData = JSON.parse(userDataString);
@@ -60,6 +62,9 @@ export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/
     if (module.name === 'Security') {
       return portalHome;
     }
+    if (module.name === 'Real Estate') {
+      return `${origin}/dashboard`;
+    }
     return module.href;
   }
 
@@ -84,7 +89,7 @@ export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/
                   enabled
                     ? 'text-primary hover:text-[#ff8200]'
                     : 'text-muted-foreground/60 cursor-not-allowed',
-                  isActive && 'bg-destructive/10 text-destructive h-[5vh] py-0 border-l border-r border-destructive',
+                  isActive && 'text-destructive h-[5vh] py-0 border-l border-r border-destructive',
                   !isActive && ''
                 )}
                 aria-disabled={!enabled}
