@@ -127,7 +127,7 @@ export default function SiteReportPage() {
       setIsLoading(true);
     }
     
-    const baseUrl = `/orgs/${loggedInOrg.code}/site/${siteId}/`;
+    const baseUrl = `/org/security/${loggedInOrg.code}/site/${siteId}/`;
     const params = new URLSearchParams();
       
     if (selectedYear !== 'all') params.append('year', selectedYear);
@@ -608,5 +608,3 @@ export default function SiteReportPage() {
     </div>
   );
 }
-
-    
