@@ -14,7 +14,10 @@ export const metadata: Metadata = {
   title: 'TowerBuddy - Scale Speed Smart',
   description: 'Patrolling officer dashboard for Secure Buddy security management.',
   icons: {
-    icon: '/TowerBuddy_Logo.png',
+    icon: {
+      url: '/TowerBuddy_Logo.png',
+      type: 'image/png',
+    },
   },
 };
 
