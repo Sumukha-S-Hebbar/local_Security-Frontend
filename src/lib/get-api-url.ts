@@ -18,6 +18,6 @@ export const getApiBaseUrl = (): string => {
         return `${protocol}//${hostname}:8000/api/v2`;
     }
 
-    // For localhost or any other domain, use the value from the .env file.
+    // For localhost or any other domain, use the value from the .env file, with a fallback.
     return process.env.NEXT_PUBLIC_DJANGO_API_URL || 'http://localhost:8000/api/v2';
 };
