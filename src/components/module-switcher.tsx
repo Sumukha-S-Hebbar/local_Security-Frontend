@@ -80,11 +80,11 @@ export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/
                 key={module.name}
                 href={enabled ? getModuleHref(module) : '#'}
                 className={cn(
-                  'px-3 py-1 font-semibold transition-colors rounded-md',
+                  'flex items-center px-3 py-1 font-semibold transition-colors rounded-md',
                   enabled
                     ? 'text-primary hover:text-primary/80'
                     : 'text-muted-foreground/60 cursor-not-allowed',
-                  isActive && 'bg-destructive/10 border border-destructive text-destructive'
+                  isActive && 'bg-destructive/10 text-destructive h-[5vh] py-0'
                 )}
                 aria-disabled={!enabled}
                 onClick={(e) => !enabled && e.preventDefault()}
