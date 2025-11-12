@@ -152,7 +152,7 @@ export default function AgencySiteReportPage() {
   
   useEffect(() => {
     if (loggedInOrg && siteId && token) {
-      const baseUrl = `/agency/${loggedInOrg.code}/site/${siteId}/`;
+      const baseUrl = `/agency/security/${loggedInOrg.code}/site/${siteId}/`;
       const params = new URLSearchParams();
 
       const isFiltering = selectedYear !== 'all' || selectedMonth !== 'all' || selectedStatus !== 'all';
