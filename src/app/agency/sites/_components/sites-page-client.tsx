@@ -393,7 +393,7 @@ export function SitesPageClient() {
       return;
     }
 
-    const API_URL = `${getApiBaseUrl()}/agency/${loggedInOrg.code}/sites/${siteId}/assign_personnel/`;
+    const API_URL = `${getApiBaseUrl()}/agency/security/${loggedInOrg.code}/sites/${siteId}/assign_personnel/`;
 
     try {
         const response = await fetch(API_URL, {
