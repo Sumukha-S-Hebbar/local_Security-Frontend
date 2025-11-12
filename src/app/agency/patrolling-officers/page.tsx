@@ -281,7 +281,7 @@ export default function AgencyPatrollingOfficersPage() {
             return;
         }
 
-        const API_URL = `${getApiBaseUrl()}/agency/${loggedInOrg.code}/patrol_officers/add/`;
+        const API_URL = `${getApiBaseUrl()}/agency/security/${loggedInOrg.code}/patrol_officers/add/`;
         
         const payload = {
             ...values,
