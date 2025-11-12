@@ -48,6 +48,7 @@ import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getApiBaseUrl } from '@/lib/get-api-url';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 
 type PaginatedGuardsResponse = {
@@ -425,69 +426,30 @@ export default function AgencyGuardsPage() {
               <p className="text-muted-foreground font-medium">Add, view, and manage guard profiles and their assignments.</p>
             </div>
              <div className="flex items-center gap-2">
-                <Button variant="outline" onClick={handleDownloadTemplate} className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 text-white w-56">
-                    <FileDown className="mr-2 h-4 w-4" />
-                    Download Excel Template
-                </Button>
-                <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 w-56">
-                            <Upload className="mr-2 h-4 w-4" />
-                            Upload Excel
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                        <DialogTitle>Upload Guard Profiles</DialogTitle>
-                        <DialogDescription className="font-medium">
-                            Upload an Excel file to add multiple security guard profiles at once.
-                        </DialogDescription>
-                        </DialogHeader>
-                        <Form {...uploadForm}>
-                            <form onSubmit={uploadForm.handleSubmit(onUploadSubmit)}>
-                                <div className="grid gap-4 py-4">
-                                    <FormField
-                                        control={uploadForm.control}
-                                        name="excelFile"
-                                        render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Guard Excel File</FormLabel>
-                                            <FormControl>
-                                            <Input
-                                                id="excelFile-guard-input"
-                                                type="file"
-                                                accept=".xlsx, .xls"
-                                                disabled={isUploading}
-                                                onChange={(e) => field.onChange(e.target.files)}
-                                            />
-                                            </FormControl>
-                                            <FormDescription className="font-medium">
-                                            The Excel file should contain columns: name, phone, site.
-                                            </FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <DialogFooter>
-                                    <Button type="submit" disabled={isUploading} className="bg-[#00B4D8] hover:bg-[#00B4D8]/90">
-                                    {isUploading ? (
-                                        <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Uploading...
-                                        </>
-                                    ) : (
-                                        <>
-                                        <Upload className="mr-2 h-4 w-4" />
-                                        Upload Excel
-                                        </>
-                                    )}
-                                    </Button>
-                                </DialogFooter>
-                            </form>
-                        </Form>
-                    </DialogContent>
-                </Dialog>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button disabled variant="outline" className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 text-white w-56">
+                        <FileDown className="mr-2 h-4 w-4" />
+                        Download Excel Template
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Upcoming feature</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button disabled className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 w-56">
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload Excel
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Upcoming feature</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
                 <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                     <DialogTrigger asChild>
                         <Button variant="outline" className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 text-white w-56" onClick={handleAddGuardClick}>

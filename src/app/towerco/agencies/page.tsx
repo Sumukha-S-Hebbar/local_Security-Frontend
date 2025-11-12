@@ -43,6 +43,7 @@ import {
 import { cn } from '@/lib/utils';
 import { fetchData } from '@/lib/api';
 import { getApiBaseUrl } from '@/lib/get-api-url';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 
 const ITEMS_PER_PAGE = 10;
@@ -425,66 +426,30 @@ export default function TowercoAgenciesPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button onClick={handleDownloadTemplate} className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 w-56">
-                        <FileDown className="mr-2 h-4 w-4" />
-                        Download Excel Template
-                    </Button>
-                    <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 w-56">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button disabled onClick={handleDownloadTemplate} className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 w-56">
+                              <FileDown className="mr-2 h-4 w-4" />
+                              Download Excel Template
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Upcoming feature</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger>
+                           <Button disabled className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 w-56">
                                 <Upload className="mr-2 h-4 w-4" />
                                 Upload Excel
                             </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                            <DialogTitle>Upload Agency Profiles</DialogTitle>
-                            <DialogDescription className="font-medium">
-                                Upload an Excel file to add multiple security agency profiles at once.
-                            </DialogDescription>
-                            </DialogHeader>
-                            <Form {...uploadForm}>
-                                <form onSubmit={uploadForm.handleSubmit(onUploadSubmit)}>
-                                    <div className="grid gap-4 py-4">
-                                        <FormField
-                                            control={uploadForm.control}
-                                            name="excelFile"
-                                            render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Agency Excel File</FormLabel>
-                                                <FormControl>
-                                                <Input
-                                                    id="excelFile-agency-input"
-                                                    type="file"
-                                                    accept=".xlsx, .xls"
-                                                    disabled={isUploading}
-                                                    onChange={(e) => field.onChange(e.target.files)}
-                                                />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                    <DialogFooter>
-                                        <Button type="submit" disabled={isUploading}>
-                                        {isUploading ? (
-                                            <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Uploading...
-                                            </>
-                                        ) : (
-                                            <>
-                                            <Upload className="mr-2 h-4 w-4" />
-                                            Upload Excel
-                                            </>
-                                        )}
-                                        </Button>
-                                    </DialogFooter>
-                                </form>
-                            </Form>
-                        </DialogContent>
-                    </Dialog>
+                        </TooltipTrigger>
+                         <TooltipContent>
+                          <p>Upcoming feature</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
 
                     <Dialog open={isAddAgencyDialogOpen} onOpenChange={setIsAddAgencyDialogOpen}>
                         <DialogTrigger asChild>

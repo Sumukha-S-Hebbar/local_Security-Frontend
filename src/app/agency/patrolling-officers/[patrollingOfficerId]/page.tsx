@@ -31,6 +31,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { fetchData } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type PaginatedIncidents = {
     count: number;
@@ -346,10 +347,19 @@ export default function AgencyPatrollingOfficerReportPage() {
             <p className="text-muted-foreground font-medium">Detailed overview for {officerName}.</p>
           </div>
         </div>
-        <Button onClick={handleDownloadReport} className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 w-56">
-          <FileDown className="mr-2 h-4 w-4" />
-          Download Full Report
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button disabled className="bg-[#00B4D8] hover:bg-[#00B4D8]/90 w-56">
+                <FileDown className="mr-2 h-4 w-4" />
+                Download Full Report
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Upcoming feature</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
       
        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
