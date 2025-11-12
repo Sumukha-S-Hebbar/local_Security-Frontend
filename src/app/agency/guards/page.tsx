@@ -374,7 +374,7 @@ export default function AgencyGuardsPage() {
       return;
     }
     setIsRequestingSelfie(true);
-    const API_URL = `${getApiBaseUrl()}/agency/${loggedInOrg.code}/random_selfie/send_to_all/`;
+    const API_URL = `${getApiBaseUrl()}/agency/security/${loggedInOrg.code}/random_selfie/send_to_all/`;
 
     try {
       const response = await fetch(API_URL, {
