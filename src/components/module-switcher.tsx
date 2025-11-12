@@ -8,16 +8,17 @@ import { useState, useEffect } from 'react';
 
 type Module = {
   name: string;
+  key: string;
   href: string;
 };
 
 const allModules: Module[] = [
-  { name: 'Real Estate', href: '#' }, // Dynamic href
-  { name: 'Security', href: '#' }, // Href will be replaced by portal-specific home
-  { name: 'Energy', href: '#' },
-  { name: 'Incident Management', href: '#' },
-  { name: 'Preventive Maintenance', href: '#' },
-  { name: 'Site Master', href: '#' },
+  { name: 'Terriq', key: 'realestate', href: '#' }, // Dynamic href
+  { name: 'Fortiq', key: 'security', href: '#' }, // Href will be replaced by portal-specific home
+  { name: 'Energy', key: 'energy', href: '#' },
+  { name: 'Incident Management', key: 'incident management', href: '#' },
+  { name: 'Preventive Maintenance', key: 'preventive maintenance', href: '#' },
+  { name: 'Site Master', key: 'site master', href: '#' },
 ];
 
 export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/towerco/home' }) {
@@ -32,9 +33,9 @@ export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/
       if (userDataString) {
         try {
           const userData = JSON.parse(userDataString);
-          const subscribed = userData?.user?.organization?.subscribed_modules || [];
+          const modules = userData?.user?.organization?.subscribed_modules || userData?.user?.subcontractor?.subscribed_modules || [];
           // Normalize to lowercase for case-insensitive comparison
-          setEnabledModules(subscribed.map((m: string) => m.toLowerCase()));
+          setEnabledModules(modules.map((m: string) => m.toLowerCase()));
         } catch (error) {
           console.error("Failed to parse user data for module switcher:", error);
           setEnabledModules([]);
@@ -43,26 +44,15 @@ export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/
     }
   }, []);
 
-  const isModuleEnabled = (moduleName: string) => {
-    const lowerCaseModuleName = moduleName.toLowerCase();
-    
-    // Handle the specific case for "Real Estate" vs "realestate"
-    if (lowerCaseModuleName === 'real estate') {
-      return enabledModules.includes('realestate');
-    }
-    // Handle "Site Master" vs "site master"
-    if (lowerCaseModuleName === 'site master') {
-        return enabledModules.includes('site master');
-    }
-
-    return enabledModules.includes(lowerCaseModuleName);
+  const isModuleEnabled = (moduleKey: string) => {
+    return enabledModules.includes(moduleKey.toLowerCase());
   };
   
   const getModuleHref = (module: Module) => {
-    if (module.name === 'Security') {
+    if (module.key === 'security') {
       return portalHome;
     }
-    if (module.name === 'Real Estate') {
+    if (module.key === 'realestate') {
       return `${origin}/`;
     }
     return module.href;
@@ -77,8 +67,8 @@ export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/
       <div className="container mx-auto px-4 md:px-6">
         <nav className="flex items-center justify-center gap-4 sm:gap-6 text-sm">
           {allModules.map((module) => {
-            const enabled = isModuleEnabled(module.name);
-            const isActive = module.name === 'Security' && isSecurityModuleActive();
+            const enabled = isModuleEnabled(module.key);
+            const isActive = module.key === 'security' && isSecurityModuleActive();
 
             return (
               <Link
