@@ -110,3 +110,10 @@
   opacity: 0.8;
   transition: opacity 0.2s;
 }
+
+.login-bg {
+  background-image: url('/bg_towers_footer.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}

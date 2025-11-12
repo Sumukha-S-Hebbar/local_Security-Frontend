@@ -63,7 +63,7 @@ export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/
       return portalHome;
     }
     if (module.name === 'Real Estate') {
-      return `${origin}/dashboard`;
+      return `${origin}/`;
     }
     return module.href;
   }
