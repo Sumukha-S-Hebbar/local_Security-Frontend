@@ -173,7 +173,7 @@ export function SitesPageClient() {
     if (!loggedInOrg || !token) return;
 
     try {
-        const poResponse = await fetchData<{results: any[]}>(`/agency/${loggedInOrg.code}/patrol_officers/list/`, token);
+        const poResponse = await fetchData<{results: any[]}>(`/agency/security/${loggedInOrg.code}/patrol_officers/list/`, token);
         const formattedPOs = poResponse?.results.map((po) => ({
             id: po.id,
             employee_id: po.employee_id,
@@ -189,7 +189,7 @@ export function SitesPageClient() {
         })) || [];
         setPatrollingOfficers(formattedPOs);
 
-        const unassignedGuardsResponse = await fetchData<{ results: any[] }>(`/agency/${loggedInOrg.code}/unassigned_guards/list/`, token);
+        const unassignedGuardsResponse = await fetchData<{ results: any[] }>(`/agency/security/${loggedInOrg.code}/unassigned_guards/list/`, token);
         setUnassignedGuards(unassignedGuardsResponse?.results || []);
 
     } catch (error) {
