@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -125,7 +126,7 @@ export default function IncidentReportPage() {
 
     const fetchIncidentReport = async () => {
         setIsLoading(true);
-        const url = `/orgs/${loggedInOrg.code}/incident/${id}/`;
+        const url = `/org/security/${loggedInOrg.code}/incident/${id}/`;
 
         try {
             const response = await fetchData<{data: IncidentReport}>(url, token);
@@ -216,7 +217,7 @@ export default function IncidentReportPage() {
     }
 
     try {
-        const API_URL = `${getApiBaseUrl()}/orgs/${loggedInOrg.code}/incident/${incidentIdParam}/`;
+        const API_URL = `${getApiBaseUrl()}/org/security/${loggedInOrg.code}/incident/${incidentIdParam}/`;
         const response = await fetch(API_URL, {
             method: 'PATCH',
             headers: {
@@ -585,3 +586,5 @@ export default function IncidentReportPage() {
     </>
   );
 }
+
+    
