@@ -343,12 +343,14 @@ export default function RootPage() {
                   </div>
                    <div className="flex items-center space-x-2">
                         <Checkbox id="terms" />
-                        <label
-                            htmlFor="terms"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-blue-600 hover:underline"
-                        >
-                            Terms &amp; Conditions
-                        </label>
+                        <Link href="https://towerbuddy.tel/terms-and-conditions" target="_blank" rel="noopener noreferrer">
+                          <label
+                              htmlFor="terms"
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-blue-600 hover:underline cursor-pointer"
+                          >
+                              Terms &amp; Conditions
+                          </label>
+                        </Link>
                     </div>
                 </CardContent>
                 <CardFooter>
