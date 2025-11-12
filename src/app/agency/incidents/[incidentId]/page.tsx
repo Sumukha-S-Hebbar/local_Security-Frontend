@@ -145,7 +145,7 @@ export default function AgencyIncidentReportPage() {
 
     const fetchIncident = async () => {
         setIsLoading(true);
-        const url = `/agency/${loggedInOrg.code}/incident/${incidentId}/`;
+        const url = `/agency/security/${loggedInOrg.code}/incident/${incidentId}/`;
 
         try {
             const response = await fetchData<{data: IncidentDetails}>(url, token || undefined);
@@ -229,7 +229,7 @@ export default function AgencyIncidentReportPage() {
         }
     }
     
-    const API_URL = `${getApiBaseUrl()}/agency/${loggedInOrg.code}/incident/${incident.id}/`;
+    const API_URL = `${getApiBaseUrl()}/agency/security/${loggedInOrg.code}/incident/${incident.id}/`;
 
     try {
         const response = await fetch(API_URL, {
@@ -637,4 +637,3 @@ export default function AgencyIncidentReportPage() {
     </>
   );
 }
-
