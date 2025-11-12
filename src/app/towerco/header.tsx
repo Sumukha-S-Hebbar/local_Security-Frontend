@@ -75,7 +75,7 @@ export default function TowercoHeader() {
       !isVisible && "-translate-y-full"
     )}>
       <ModuleSwitcher portalHome="/towerco/home" />
-      <div className="container mx-auto flex h-16 items-center px-4 md:px-6">
+      <div className="container mx-auto flex h-14 items-center px-4 md:px-6">
         <div className="flex items-center gap-6 flex-1">
           <Link href="/towerco/home" className="flex items-center gap-2 text-header-foreground">
              <Image src="/TowerBuddy_Logo.png" alt="TowerBuddy Logo" width={150} height={40} />
