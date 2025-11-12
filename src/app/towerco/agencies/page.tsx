@@ -160,7 +160,7 @@ export default function TowercoAgenciesPage() {
         }
 
         try {
-            const response = await fetchData<PaginatedAgenciesResponse>(`/orgs/${orgCode}/security-agencies/list/?${params.toString()}`, token);
+            const response = await fetchData<PaginatedAgenciesResponse>(`/org/security/${orgCode}/security-agencies/list/?${params.toString()}`, token);
             
             const fetchedAgencies = response?.results || [];
             setSecurityAgencies(fetchedAgencies);
@@ -830,5 +830,3 @@ export default function TowercoAgenciesPage() {
         </div>
     );
 }
-
-    
