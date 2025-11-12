@@ -114,6 +114,6 @@
 .login-bg {
   background-image: url('/bg_towers_footer.svg');
   background-size: contain;
-  background-position: bottom;
+  background-position: 48% bottom;
   background-repeat: no-repeat;
 }
