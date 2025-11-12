@@ -180,8 +180,8 @@ export default function RootPage() {
                   <Image
                     src="/TowerBuddy_Logo.png"
                     alt="TowerBuddy Logo"
-                    width={120}
-                    height={32}
+                    width={105}
+                    height={28}
                     className="w-auto h-auto"
                   />
                 </div>
