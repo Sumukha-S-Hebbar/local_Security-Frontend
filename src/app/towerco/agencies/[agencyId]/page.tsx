@@ -249,7 +249,7 @@ export default function AgencyReportPage() {
           setIsLoading(true);
           const orgCode = loggedInOrg.code;
           
-          let url = `/orgs/${orgCode}/security-agencies/${agencyId}/`;
+          let url = `/org/security/${orgCode}/security-agencies/${agencyId}/`;
           
           const queryParams = new URLSearchParams();
           if (performanceSelectedYear !== 'all') queryParams.append('year', performanceSelectedYear);
