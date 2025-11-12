@@ -158,7 +158,7 @@ export default function AgencyGuardReportPage() {
   
   useEffect(() => {
     if (loggedInOrg && guardId) {
-      const baseUrl = `/agency/${loggedInOrg.code}/guard/${guardId}/`;
+      const baseUrl = `/agency/security/${loggedInOrg.code}/guard/${guardId}/`;
       const params = new URLSearchParams();
 
       if (selectedYear !== 'all') params.append('year', selectedYear);
