@@ -146,7 +146,7 @@ export default function AgencyPatrollingOfficersPage() {
         });
         if (searchQuery) params.append('search', searchQuery);
 
-        const url = `/agency/${loggedInOrg.code}/patrol_officers/list/?${params.toString()}`;
+        const url = `/agency/security/${loggedInOrg.code}/patrol_officers/list/?${params.toString()}`;
 
         try {
             const data = await fetchData<PaginatedPatrollingOfficers>(url, token);
