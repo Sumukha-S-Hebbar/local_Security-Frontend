@@ -146,7 +146,7 @@ export function AgencyIncidentChart({
         month: month.toString(),
     });
     
-    const url = `/agency/${orgCode}/incidents/list/?${params.toString()}`;
+    const url = `/agency/security/${orgCode}/incidents/list/?${params.toString()}`;
 
     try {
         const data = await fetchData<PaginatedIncidentsResponse>(url, token);
