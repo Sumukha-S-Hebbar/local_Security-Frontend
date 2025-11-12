@@ -1,10 +1,13 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
  
   basePath: '/security',
   trailingSlash: true,  // match Apache's rewrite
   assetPrefix: '/security',
+
+  env: {
+    NEXT_PUBLIC_BASE_PATH: '/security',
+  },
  
   images: {
     remotePatterns: [

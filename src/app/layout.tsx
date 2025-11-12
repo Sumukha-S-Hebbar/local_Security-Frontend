@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import { IBM_Plex_Sans } from 'next/font/google';
 import './globals.css';
@@ -13,7 +12,6 @@ const ibmPlexSans = IBM_Plex_Sans({
 export const metadata: Metadata = {
   title: 'TowerBuddy - Scale Speed Smart',
   description: 'Patrolling officer dashboard for Secure Buddy security management.',
-  icons: '/favicon.ico',
 };
 
 export default function RootLayout({
@@ -21,9 +19,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
   return (
     <html lang="en" className={`${ibmPlexSans.variable} h-full`}>
       <head>
+        <link rel="icon" href={`${basePath}/favicon.ico`} />
       </head>
       <body className="font-body antialiased h-full">
         {children}

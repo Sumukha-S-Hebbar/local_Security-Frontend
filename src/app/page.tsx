@@ -40,6 +40,7 @@ interface LoginResponse {
   country?: User['country'] | null;
 }
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export default function RootPage() {
   const router = useRouter();
@@ -178,7 +179,7 @@ export default function RootPage() {
             <div className="flex-grow flex flex-col justify-center items-center text-center">
                 <div className="mb-6 bg-white rounded-full h-40 w-40 flex items-center justify-center">
                   <Image
-                    src="/TowerBuddy_Logo.png"
+                    src={`${basePath}/TowerBuddy_Logo.png`}
                     alt="TowerBuddy Logo"
                     width="90"
                     height="24"

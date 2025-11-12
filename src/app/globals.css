@@ -32,6 +32,7 @@
     --radius: 0.5rem;
     --header-background: 216 42% 18%;
     --header-foreground: 210 60% 98%;
+    --base-path: '/security';
   }
 
   .dark {
@@ -112,7 +113,7 @@
 }
 
 .login-bg {
-  background-image: url('/bg_towers_footer.svg');
+  background-image: url("var(--base-path)/bg_towers_footer.svg");
   background-size: contain;
   background-position: 45% bottom;
   background-repeat: no-repeat;

@@ -21,6 +21,8 @@ import { cn } from '@/lib/utils';
 import { ModuleSwitcher } from '@/components/module-switcher';
 import Image from 'next/image';
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 export default function TowercoHeader() {
   const pathname = usePathname();
   const router = useRouter();
@@ -78,7 +80,7 @@ export default function TowercoHeader() {
       <div className="container mx-auto flex h-16 items-center px-4 md:px-6">
         <div className="flex items-center gap-6 flex-1">
           <Link href="/towerco/home" className="flex items-center gap-2 text-header-foreground">
-             <Image src="/TowerBuddy_Logo.png" alt="TowerBuddy Logo" width={60} height={16} />
+             <Image src={`${basePath}/TowerBuddy_Logo.png`} alt="TowerBuddy Logo" width={60} height={16} />
           </Link>
         </div>
 
@@ -102,7 +104,7 @@ export default function TowercoHeader() {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[300px] bg-header text-header-foreground p-0">
                      <div className="flex items-center gap-2 p-4 border-b border-white/10">
-                        <Image src="/TowerBuddy_Logo.png" alt="TowerBuddy Logo" width={60} height={16} />
+                        <Image src={`${basePath}/TowerBuddy_Logo.png`} alt="TowerBuddy Logo" width={60} height={16} />
                     </div>
                     <nav className="flex flex-col p-4 space-y-2">
                         {menuItems.map((item) => (
