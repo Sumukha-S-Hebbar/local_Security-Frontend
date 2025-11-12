@@ -173,8 +173,8 @@ export default function RootPage() {
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
       <div className="flex flex-col md:flex-row w-full max-w-5xl mx-auto rounded-xl shadow-2xl overflow-hidden">
         
-        <div className="w-full md:w-2/5 bg-header text-header-foreground p-8 flex flex-col justify-center text-center">
-            <div className="flex-grow flex flex-col justify-center items-center">
+        <div className="w-full md:w-2/5 bg-header text-header-foreground p-8 flex flex-col justify-center">
+            <div className="flex-grow flex flex-col justify-center items-center text-center">
                 <div className="flex items-center justify-center gap-3 mb-6">
                 <div className="bg-white rounded-full p-2">
                     <svg
@@ -197,11 +197,8 @@ export default function RootPage() {
                   <h2 className="text-4xl font-bold tracking-wider">START EARNING<br/>TODAY</h2>
                 ) : (
                   <div className="text-center">
-                    <h2 className="text-4xl font-bold tracking-wider mb-6">WHY SIGN UP?</h2>
-                    <ul className="space-y-4 text-lg inline-block text-left">
-                        <li className="flex items-center gap-3">
-                            <span className="font-bold">&gt;</span> It's Secure & Free
-                        </li>
+                    <h2 className="text-4xl font-bold tracking-wider mb-6">WHY US?</h2>
+                    <ul className="space-y-4 text-lg inline-flex flex-col items-start">
                         <li className="flex items-center gap-3">
                            <span className="font-bold">&gt;</span> One Platform For Everyone
                         </li>
@@ -363,16 +360,15 @@ export default function RootPage() {
                                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
                                 I agree to the{' '}
-                                <Link
+                            </label>
+                             <Link
                                 href="https://towerbuddy.tel/terms-and-conditions"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="font-medium text-accent hover:underline text-sm"
-                                onClick={(e) => e.stopPropagation()}
                                 >
                                 Terms &amp; Conditions
                                 </Link>
-                            </label>
                         </div>
                     </div>
                   </CardContent>
