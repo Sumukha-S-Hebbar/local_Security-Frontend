@@ -316,7 +316,7 @@ export default function AgencyGuardsPage() {
         return;
     }
 
-    const API_URL = `${getApiBaseUrl()}/agency/${loggedInOrg.code}/guards/add/`;
+    const API_URL = `${getApiBaseUrl()}/agency/security/${loggedInOrg.code}/guards/add/`;
 
     const payload = {
         ...values,
