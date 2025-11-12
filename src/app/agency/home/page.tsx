@@ -96,7 +96,7 @@ interface AgencyDashboardData {
 }
 
 async function getDashboardData(orgCode: string, token?: string, url?: string): Promise<AgencyDashboardData | null> {
-  const fetchUrl = url || `/agency/${orgCode}/agency-dashboard/`;
+  const fetchUrl = url || `/agency/security/${orgCode}/agency-dashboard/`;
   return fetchData<AgencyDashboardData>(fetchUrl, token);
 }
 
