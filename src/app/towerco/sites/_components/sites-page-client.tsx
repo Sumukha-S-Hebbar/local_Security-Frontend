@@ -26,12 +26,12 @@ import {
 } from '@/components/ui/table';
 import {
   FileDown,
+  MapPin,
   Search,
   ShieldAlert,
   Users,
   PlusCircle,
   Loader2,
-  MapPin,
   Upload,
 } from 'lucide-react';
 import {
@@ -503,7 +503,7 @@ export function SitesPageClient() {
 
         toast({
             title: 'Site Added Successfully',
-            description: responseData.message,
+            description: `Tower Site successfully created with site ID: ${responseData.data?.org_site_id}`,
         });
         
         setActiveTab('unassigned');
