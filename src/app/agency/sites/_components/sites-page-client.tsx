@@ -49,8 +49,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
-import { fetchData } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { fetchData } from '@/lib/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getApiBaseUrl } from '@/lib/get-api-url';
 
@@ -149,7 +149,7 @@ export function SitesPageClient() {
     }
 
     try {
-        const response = await fetchData<PaginatedSitesResponse>(`/agency/${loggedInOrg.code}/sites/list/?${params.toString()}`, token);
+        const response = await fetchData<PaginatedSitesResponse>(`/agency/security/${loggedInOrg.code}/sites/list/?${params.toString()}`, token);
         if (status === 'Assigned') {
             setAssignedSites(response?.results || []);
             setAssignedSitesCount(response?.count || 0);
