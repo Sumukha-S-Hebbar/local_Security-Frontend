@@ -83,7 +83,14 @@ export default function AgencyAccountPage() {
   
   async function onPasswordSubmit(values: PasswordFormValues) {
     setIsUpdatingPassword(true);
-    const token = localStorage.getItem('token');
+    
+    const userDataString = localStorage.getItem('userData');
+    if (!userDataString) {
+        toast({ variant: 'destructive', title: 'Error', description: 'User not logged in.' });
+        setIsUpdatingPassword(false);
+        return;
+    }
+    const token = JSON.parse(userDataString).token;
     
     try {
         const API_URL = `${getApiBaseUrl()}/users/account/password/change/`;
