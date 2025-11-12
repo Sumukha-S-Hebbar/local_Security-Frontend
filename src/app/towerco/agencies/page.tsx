@@ -356,7 +356,7 @@ export default function TowercoAgenciesPage() {
         setIsAddingAgency(true);
 
         try {
-            const API_URL = `${getApiBaseUrl()}/orgs/${loggedInOrg.code}/security-agencies/add/`;
+            const API_URL = `${getApiBaseUrl()}/org/security/${loggedInOrg.code}/security-agencies/add/`;
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {
@@ -830,3 +830,5 @@ export default function TowercoAgenciesPage() {
         </div>
     );
 }
+
+    
