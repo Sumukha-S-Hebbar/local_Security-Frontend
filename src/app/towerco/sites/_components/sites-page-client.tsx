@@ -173,7 +173,7 @@ export function SitesPageClient() {
   const fetchAgencies = useCallback(async () => {
     if (!loggedInOrg || !token) return;
     try {
-        const agenciesResponse = await fetchData<{results: SecurityAgency[]}>(`/orgs/${loggedInOrg.code}/security-agencies/list`, token);
+        const agenciesResponse = await fetchData<{results: SecurityAgency[]}>(`/org/security/${loggedInOrg.code}/security-agencies/list`, token);
         setAllAgencies(agenciesResponse?.results || []);
     } catch (error) {
         toast({
@@ -206,7 +206,7 @@ export function SitesPageClient() {
     }
 
     try {
-        const response = await fetchData<PaginatedSitesResponse>(`/orgs/${loggedInOrg.code}/sites/list/?${params.toString()}`, token);
+        const response = await fetchData<PaginatedSitesResponse>(`/org/security/${loggedInOrg.code}/sites/list/?${params.toString()}`, token);
         if (status === 'Assigned') {
             setAssignedSites(response?.results || []);
             setAssignedSitesCount(response?.count || 0);
@@ -436,7 +436,7 @@ export function SitesPageClient() {
        return;
     }
     
-    const API_URL = `${getApiBaseUrl()}/orgs/${loggedInOrg.code}/sites/${siteId}/assign-agency/`;
+    const API_URL = `${getApiBaseUrl()}/org/security/${loggedInOrg.code}/sites/${siteId}/assign-agency/`;
 
     try {
         const response = await fetch(API_URL, {
