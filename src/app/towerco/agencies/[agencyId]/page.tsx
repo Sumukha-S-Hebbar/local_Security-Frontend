@@ -213,7 +213,7 @@ export default function AgencyReportPage() {
     
     let fetchUrl = url;
     if (!fetchUrl) {
-      const baseUrl = `/orgs/${loggedInOrg.code}/incidents/list/`;
+      const baseUrl = `/org/security/${loggedInOrg.code}/incidents/list/`;
       const queryParams = new URLSearchParams();
       queryParams.append('agency_name', reportData.name);
 
