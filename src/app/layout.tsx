@@ -13,9 +13,6 @@ const ibmPlexSans = IBM_Plex_Sans({
 export const metadata: Metadata = {
   title: 'TowerBuddy - Scale Speed Smart',
   description: 'Patrolling officer dashboard for Secure Buddy security management.',
-  icons: {
-    icon: '/favicon.ico',
-  },
 };
 
 export default function RootLayout({
