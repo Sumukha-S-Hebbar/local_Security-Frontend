@@ -176,7 +176,7 @@ function TowercoHomePageContent() {
 
   useEffect(() => {
     if (org && token) {
-      const url = `/orgs/${org.code}/security-dashboard/`;
+      const url = `/org/security/${org.code}/security-dashboard/`;
       getDashboardData(url)
         .then(setData)
         .catch(err => {
