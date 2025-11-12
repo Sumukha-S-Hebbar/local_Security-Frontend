@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -204,7 +203,12 @@ export default function RootPage() {
             </ul>
           </div>
           <div className="mt-8 text-center text-xs w-full">
-            <Link href="https://towerbuddy.tel/privacy-policy" target="_blank" rel="noopener noreferrer" className="hover:underline">
+            <Link 
+              href="https://towerbuddy.tel/privacy-policy" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="inline-block bg-white text-blue-900 font-semibold py-2 px-4 rounded-md shadow-md hover:bg-gray-200 transition-colors"
+            >
               i4sight Technologies | All Rights Reserved
             </Link>
           </div>
@@ -358,4 +362,3 @@ export default function RootPage() {
     </div>
   );
 }
-
