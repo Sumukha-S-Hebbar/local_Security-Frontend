@@ -192,7 +192,7 @@ export default function RootPage() {
                 <h1 className="text-3xl font-bold">Secure Buddy</h1>
                 </div>
                 <h2 className="text-2xl font-bold mb-6">WHY SIGN UP?</h2>
-                <ul className="space-y-4 text-lg inline-block">
+                <ul className="space-y-4 text-lg flex flex-col items-start">
                     <li className="flex items-center gap-3">
                         <CheckIcon className="w-6 h-6" />
                         <span className='font-medium'>Centralized Resource Management</span>
@@ -359,6 +359,7 @@ export default function RootPage() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="font-medium text-accent hover:underline text-sm"
+                                onClick={(e) => e.stopPropagation()}
                                 >
                                 Terms &amp; Conditions
                                 </Link>
