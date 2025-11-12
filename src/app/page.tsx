@@ -85,7 +85,7 @@ export default function RootPage() {
 
     try {
       if (!username || !password) {
-        throw new Error('Username and password are required.');
+        throw new Error('Email and password are required.');
       }
 
       const API_URL = `${getApiBaseUrl()}/users/auth/token/`;
@@ -233,11 +233,11 @@ export default function RootPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="username-in">Username</Label>
+                      <Label htmlFor="username-in">Email Address</Label>
                       <Input 
                         id="username-in" 
-                        type="text" 
-                        placeholder="Enter your username" 
+                        type="email" 
+                        placeholder="Enter your email" 
                         required 
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
