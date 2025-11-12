@@ -176,13 +176,13 @@ export default function RootPage() {
         
         <div className="w-full md:w-2/5 bg-header text-header-foreground p-8 flex flex-col justify-between">
             <div className="flex-grow flex flex-col justify-center items-center text-center">
-                <div className="mb-6 bg-white rounded-full p-4">
+                <div className="mb-6 bg-white rounded-full p-4 h-40 w-40 flex items-center justify-center">
                   <Image
                     src="/TowerBuddy_Logo.png"
                     alt="TowerBuddy Logo"
                     width={120}
                     height={32}
-                    className="w-32 h-auto"
+                    className="w-auto h-auto"
                   />
                 </div>
                  {activeTab === 'signin' ? (
