@@ -479,7 +479,7 @@ export function SitesPageClient() {
         return;
     }
     setIsAddingSite(true);
-    const API_URL = `${getApiBaseUrl()}/orgs/${loggedInOrg.code}/sites/add/`;
+    const API_URL = `${getApiBaseUrl()}/org/security/${loggedInOrg.code}/sites/add/`;
 
     try {
         const response = await fetch(API_URL, {
