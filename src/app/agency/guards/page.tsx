@@ -175,7 +175,7 @@ export default function AgencyGuardsPage() {
     });
     if (searchQuery) params.append('search', searchQuery);
 
-    const url = `/agency/${orgCode}/guards/list/?check_in_status=${checkInStatus}&${params.toString()}`;
+    const url = `/agency/security/${orgCode}/guards/list/?check_in_status=${checkInStatus}&${params.toString()}`;
 
     try {
         const response = await fetchData<PaginatedGuardsResponse>(url, token);
