@@ -110,7 +110,7 @@ export function IncidentsPageClient() {
     if (!loggedInOrg) return;
 
     const fetchSupportingData = async () => {
-        const sitesUrl = `/agency/${loggedInOrg.code}/sites/list/`;
+        const sitesUrl = `/agency/security/${loggedInOrg.code}/sites/list/`;
         const sitesData = await fetchData<{results: Site[]}>(sitesUrl, token || undefined);
         setSites(sitesData?.results || []);
     };
@@ -144,7 +144,7 @@ export function IncidentsPageClient() {
       if (selectedYear !== 'all') params.append('year', selectedYear);
       if (selectedMonth !== 'all') params.append('month', selectedMonth);
       
-      const url = `/agency/${loggedInOrg.code}/incidents/list/?${params.toString()}`;
+      const url = `/agency/security/${loggedInOrg.code}/incidents/list/?${params.toString()}`;
 
       try {
         const data = await fetchData<PaginatedIncidentsResponse>(url, token || undefined);
@@ -388,3 +388,5 @@ export function IncidentsPageClient() {
     </div>
   );
 }
+
+    
