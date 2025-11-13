@@ -173,12 +173,9 @@ export default function RootPage() {
 
   return (
     <div
-      className="min-h-screen bg-background text-foreground flex items-center justify-center p-4"
+      className="min-h-screen bg-background text-foreground flex items-center justify-center p-4 login-bg"
       style={{
         backgroundImage: `url(${basePath}/bg_towers_footer.svg)`,
-        backgroundSize: 'contain',
-        backgroundPosition: '15% bottom',
-        backgroundRepeat: 'no-repeat',
       }}
     >
       <div className="flex flex-col md:flex-row w-full max-w-5xl mx-auto rounded-xl shadow-2xl overflow-hidden">
