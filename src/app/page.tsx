@@ -180,12 +180,12 @@ export default function RootPage() {
         
         <div className="w-full md:w-2/5 bg-header text-header-foreground p-8 flex flex-col justify-between">
             <div className="flex-grow flex flex-col justify-center items-center text-center">
-                <div className="mb-6 bg-white rounded-full h-40 w-40 flex items-center justify-center">
+                <div className="mb-6 bg-white rounded-full h-32 w-32 flex items-center justify-center">
                   <Image
                     src={`${basePath}/TowerBuddy_Logo.png`}
                     alt="TowerBuddy Logo"
-                    width="90"
-                    height="24"
+                    width="80"
+                    height="21"
                     className="w-auto h-auto"
                   />
                 </div>
