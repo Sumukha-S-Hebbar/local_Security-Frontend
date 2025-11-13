@@ -177,7 +177,7 @@ export default function RootPage() {
       style={{
         backgroundImage: `url(${basePath}/bg_towers_footer.svg)`,
         backgroundSize: 'contain',
-        backgroundPosition: '45% bottom',
+        backgroundPosition: '35% bottom',
         backgroundRepeat: 'no-repeat',
       }}
     >
@@ -185,12 +185,12 @@ export default function RootPage() {
         
         <div className="w-full md:w-2/5 bg-header text-header-foreground p-8 flex flex-col justify-between">
             <div className="flex-grow flex flex-col justify-center items-center text-center">
-                <div className="mb-6 bg-white rounded-full h-24 w-24 flex items-center justify-center">
+                <div className="mb-6 bg-white rounded-full h-20 w-20 flex items-center justify-center">
                   <Image
                     src={`${basePath}/TowerBuddy_Logo.png`}
                     alt="TowerBuddy Logo"
-                    width="60"
-                    height="16"
+                    width="50"
+                    height="13"
                   />
                 </div>
                  {activeTab === 'signin' ? (
