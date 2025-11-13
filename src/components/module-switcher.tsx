@@ -13,8 +13,8 @@ type Module = {
 };
 
 const allModules: Module[] = [
-  { name: 'Terriq', key: 'realestate', href: '#' }, // Dynamic href
-  { name: 'Fortiq', key: 'security', href: '#' }, // Href will be replaced by portal-specific home
+  { name: 'Terriq', key: 'realestate', href: '#' },
+  { name: 'Fortiq', key: 'security', href: '#' },
   { name: 'Energy', key: 'energy', href: '#' },
   { name: 'Incident Management', key: 'incident management', href: '#' },
   { name: 'Preventive Maintenance', key: 'preventive maintenance', href: '#' },
@@ -34,7 +34,6 @@ export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/
         try {
           const userData = JSON.parse(userDataString);
           const modules = userData?.user?.organization?.subscribed_modules || userData?.user?.subcontractor?.subscribed_modules || [];
-          // Normalize to lowercase for case-insensitive comparison
           setEnabledModules(modules.map((m: string) => m.toLowerCase()));
         } catch (error) {
           console.error("Failed to parse user data for module switcher:", error);
@@ -63,30 +62,36 @@ export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/
   }
 
   return (
-    <div className="bg-background border-b h-[5vh] flex items-center">
-      <div className="container mx-auto px-4 md:px-6">
+    <div className="bg-background border-b h-12 flex items-center">
+      <div className="container mx-auto px-4 md:px-6 h-full">
         <nav className="flex items-center justify-center gap-4 sm:gap-6 text-sm h-full">
           {allModules.map((module) => {
             const enabled = isModuleEnabled(module.key);
             const isActive = module.key === 'security' && isSecurityModuleActive();
 
             return (
-              <Link
+              <div
                 key={module.name}
-                href={enabled ? getModuleHref(module) : '#'}
                 className={cn(
-                  'flex items-center px-3 font-semibold transition-colors h-full',
-                  enabled
-                    ? 'text-primary hover:text-[#ff8200]'
-                    : 'text-muted-foreground/60 cursor-not-allowed',
-                  isActive && 'text-destructive border-l border-r border-destructive',
-                  !isActive && ''
+                  'flex items-center h-full',
+                  isActive && 'border-l border-r border-destructive'
                 )}
-                aria-disabled={!enabled}
-                onClick={(e) => !enabled && e.preventDefault()}
               >
-                {module.name}
-              </Link>
+                <Link
+                  href={enabled ? getModuleHref(module) : '#'}
+                  className={cn(
+                    'flex items-center px-4 h-full font-semibold transition-colors',
+                    enabled
+                      ? 'text-primary hover:text-destructive'
+                      : 'text-muted-foreground/60 cursor-not-allowed',
+                    isActive && 'text-destructive'
+                  )}
+                  aria-disabled={!enabled}
+                  onClick={(e) => !enabled && e.preventDefault()}
+                >
+                  {module.name}
+                </Link>
+              </div>
             );
           })}
         </nav>
