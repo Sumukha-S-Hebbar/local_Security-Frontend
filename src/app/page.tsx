@@ -173,20 +173,24 @@ export default function RootPage() {
 
   return (
     <div
-      className="min-h-screen bg-background text-foreground flex items-center justify-center p-4 login-bg"
-      style={{ backgroundImage: `url(${basePath}/bg_towers_footer.svg)` }}
+      className="min-h-screen bg-background text-foreground flex items-center justify-center p-4"
+      style={{
+        backgroundImage: `url(${basePath}/bg_towers_footer.svg)`,
+        backgroundSize: 'contain',
+        backgroundPosition: '45% bottom',
+        backgroundRepeat: 'no-repeat',
+      }}
     >
       <div className="flex flex-col md:flex-row w-full max-w-5xl mx-auto rounded-xl shadow-2xl overflow-hidden">
         
         <div className="w-full md:w-2/5 bg-header text-header-foreground p-8 flex flex-col justify-between">
             <div className="flex-grow flex flex-col justify-center items-center text-center">
-                <div className="mb-6 bg-white rounded-full h-32 w-32 flex items-center justify-center">
+                <div className="mb-6 bg-white rounded-full h-24 w-24 flex items-center justify-center">
                   <Image
                     src={`${basePath}/TowerBuddy_Logo.png`}
                     alt="TowerBuddy Logo"
-                    width="80"
-                    height="21"
-                    className="w-auto h-auto"
+                    width="60"
+                    height="16"
                   />
                 </div>
                  {activeTab === 'signin' ? (
