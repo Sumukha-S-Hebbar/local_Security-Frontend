@@ -65,7 +65,7 @@ export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/
   return (
     <div className="bg-background border-b h-[5vh] flex items-center">
       <div className="container mx-auto px-4 md:px-6">
-        <nav className="flex items-center justify-center gap-4 sm:gap-6 text-sm">
+        <nav className="flex items-center justify-center gap-4 sm:gap-6 text-sm h-full">
           {allModules.map((module) => {
             const enabled = isModuleEnabled(module.key);
             const isActive = module.key === 'security' && isSecurityModuleActive();
@@ -75,11 +75,11 @@ export function ModuleSwitcher({ portalHome }: { portalHome: '/agency/home' | '/
                 key={module.name}
                 href={enabled ? getModuleHref(module) : '#'}
                 className={cn(
-                  'flex items-center px-3 font-semibold transition-colors',
+                  'flex items-center px-3 font-semibold transition-colors h-full',
                   enabled
                     ? 'text-primary hover:text-[#ff8200]'
                     : 'text-muted-foreground/60 cursor-not-allowed',
-                  isActive && 'text-destructive h-[5vh] py-0 border-l border-r border-destructive',
+                  isActive && 'text-destructive border-l border-r border-destructive',
                   !isActive && ''
                 )}
                 aria-disabled={!enabled}

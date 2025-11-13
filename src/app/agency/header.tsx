@@ -74,62 +74,64 @@ export default function AgencyHeader() {
 
   return (
     <header className={cn(
-        "bg-header text-header-foreground sticky top-0 z-50 transition-transform duration-300",
+        "sticky top-0 z-50 flex flex-col transition-transform duration-300",
         !isVisible && "-translate-y-full"
     )}>
       <ModuleSwitcher portalHome="/agency/home" />
-      <div className="container mx-auto flex h-16 items-center px-4 md:px-6">
-        <div className="flex items-center gap-6 flex-1">
-          <Link href="/agency/home" className="flex items-center gap-2 text-header-foreground">
-            <Image src={`${basePath}/TowerBuddy_Logo.png`} alt="TowerBuddy Logo" width={60} height={16} />
-          </Link>
-        </div>
-        
-        <nav className="hidden md:flex items-center gap-2 justify-center flex-1">
-          <NavLinks />
-        </nav>
+      <div className="bg-header text-header-foreground">
+        <div className="container mx-auto flex h-16 items-center px-4 md:px-6">
+          <div className="flex items-center gap-6 flex-1">
+            <Link href="/agency/home" className="flex items-center gap-2 text-header-foreground">
+              <Image src={`${basePath}/TowerBuddy_Logo.png`} alt="TowerBuddy Logo" width={60} height={16} />
+            </Link>
+          </div>
+          
+          <nav className="hidden md:flex items-center gap-2 justify-center flex-1">
+            <NavLinks />
+          </nav>
 
-        <div className="hidden md:flex items-center gap-2 justify-end flex-1">
-           <Button onClick={handleLogout} variant="ghost" className="text-base text-header-foreground hover:text-header-foreground hover:bg-header-background/50">
-              <LogOut className="mr-2 h-5 w-5" />
-              <span>Logout</span>
-            </Button>
-        </div>
-        
-        <div className="md:hidden">
-            <Sheet>
-                <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <Menu />
-                    </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] bg-header text-header-foreground p-0">
-                     <div className="flex items-center gap-2 p-4 border-b border-white/10">
-                        <Image src={`${basePath}/TowerBuddy_Logo.png`} alt="TowerBuddy Logo" width={60} height={16} />
-                    </div>
-                    <nav className="flex flex-col p-4 space-y-2">
-                        {menuItems.map((item) => (
-                           <SheetClose key={item.href} asChild>
-                             <Link href={item.href} className={cn(
-                                "flex items-center gap-3 rounded-lg px-3 py-2 text-header-foreground/70 transition-all hover:text-header-foreground",
-                                pathname.startsWith(item.href) && "bg-black/20 text-header-foreground"
-                             )}>
-                               <item.icon className="h-5 w-5" />
-                               {item.label}
-                             </Link>
-                           </SheetClose>
-                        ))}
-                    </nav>
-                     <div className="p-4 mt-auto border-t border-white/10">
-                        <SheetClose asChild>
-                            <Button onClick={handleLogout} className="flex items-center gap-3 rounded-lg px-3 py-2 text-header-foreground transition-all hover:text-header-foreground/80 w-full justify-start">
-                                <LogOut className="h-5 w-5" />
-                                Logout
-                            </Button>
-                        </SheetClose>
-                    </div>
-                </SheetContent>
-            </Sheet>
+          <div className="hidden md:flex items-center gap-2 justify-end flex-1">
+            <Button onClick={handleLogout} variant="ghost" className="text-base text-header-foreground hover:text-header-foreground hover:bg-header-background/50">
+                <LogOut className="mr-2 h-5 w-5" />
+                <span>Logout</span>
+              </Button>
+          </div>
+          
+          <div className="md:hidden">
+              <Sheet>
+                  <SheetTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                          <Menu />
+                      </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[300px] bg-header text-header-foreground p-0">
+                      <div className="flex items-center gap-2 p-4 border-b border-white/10">
+                          <Image src={`${basePath}/TowerBuddy_Logo.png`} alt="TowerBuddy Logo" width={60} height={16} />
+                      </div>
+                      <nav className="flex flex-col p-4 space-y-2">
+                          {menuItems.map((item) => (
+                            <SheetClose key={item.href} asChild>
+                              <Link href={item.href} className={cn(
+                                  "flex items-center gap-3 rounded-lg px-3 py-2 text-header-foreground/70 transition-all hover:text-header-foreground",
+                                  pathname.startsWith(item.href) && "bg-black/20 text-header-foreground"
+                              )}>
+                                <item.icon className="h-5 w-5" />
+                                {item.label}
+                              </Link>
+                            </SheetClose>
+                          ))}
+                      </nav>
+                      <div className="p-4 mt-auto border-t border-white/10">
+                          <SheetClose asChild>
+                              <Button onClick={handleLogout} className="flex items-center gap-3 rounded-lg px-3 py-2 text-header-foreground transition-all hover:text-header-foreground/80 w-full justify-start">
+                                  <LogOut className="h-5 w-5" />
+                                  Logout
+                              </Button>
+                          </SheetClose>
+                      </div>
+                  </SheetContent>
+              </Sheet>
+          </div>
         </div>
       </div>
     </header>
