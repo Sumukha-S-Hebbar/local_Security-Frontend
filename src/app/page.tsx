@@ -177,7 +177,7 @@ export default function RootPage() {
       style={{
         backgroundImage: `url(${basePath}/bg_towers_footer.svg)`,
         backgroundSize: 'contain',
-        backgroundPosition: '35% bottom',
+        backgroundPosition: '15% bottom',
         backgroundRepeat: 'no-repeat',
       }}
     >
