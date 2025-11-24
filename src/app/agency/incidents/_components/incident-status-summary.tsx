@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 
 
 type IncidentCounts = {
+    sos_count: number;
     active_incidents_count: number;
     under_review_incidents_count: number;
     resolved_incidents_count: number;
@@ -26,6 +27,15 @@ export function IncidentStatusSummary({
 }) {
 
   const statusCards = [
+    {
+      status: 'sos',
+      count: counts.sos_count,
+      label: 'SOS',
+      icon: ShieldAlert,
+      color: 'text-destructive',
+      bg: 'bg-destructive/10',
+      ring: 'ring-destructive'
+    },
     {
       status: 'active',
       count: counts.active_incidents_count,
@@ -57,7 +67,7 @@ export function IncidentStatusSummary({
 
   return (
     <Card>
-      <CardContent className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statusCards.map(item => (
             <div 
             key={item.status}
