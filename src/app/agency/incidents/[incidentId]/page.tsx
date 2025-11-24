@@ -579,14 +579,6 @@ export default function AgencyIncidentReportPage() {
 
             {incident.incident_status === 'Under Review' && (
               <div className="pt-6">
-                {incident.incident_description && (
-                  <div>
-                    <h4 className="font-semibold mb-2 text-lg">
-                      Incident Summary
-                    </h4>
-                    <p className="text-muted-foreground">{incident.incident_description}</p>
-                  </div>
-                )}
                 <Alert variant="default" className='mt-6'>
                   <Info className="h-4 w-4" />
                   <AlertTitle>Awaiting Resolution</AlertTitle>
@@ -599,14 +591,6 @@ export default function AgencyIncidentReportPage() {
             
             {incident.incident_status === 'Resolved' && (
                 <div className="pt-6">
-                     {incident.incident_description && (
-                      <div className="pb-6">
-                        <h4 className="font-semibold mb-2 text-lg">
-                          Incident Summary
-                        </h4>
-                        <p className="text-muted-foreground">{incident.incident_description}</p>
-                      </div>
-                    )}
                      {renderMediaGallery(resolvedMediaUrls, "Resolution Media Evidence", "resolution document")}
                       {incident.resolution_notes && (
                         <div className="pt-6">
