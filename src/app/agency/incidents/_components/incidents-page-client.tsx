@@ -149,7 +149,7 @@ export function IncidentsPageClient() {
       }
       
       if (searchQuery) params.append('search', searchQuery);
-      if (selectedSite !== 'all') params.append('site_name', selectedSite);
+      if (selectedSite !== 'all') params.append('site', selectedSite);
       if (selectedYear !== 'all') params.append('year', selectedYear);
       if (selectedMonth !== 'all') params.append('month', selectedMonth);
       
@@ -292,6 +292,19 @@ export function IncidentsPageClient() {
                 <SelectItem value="active" className="font-medium">Active</SelectItem>
                 <SelectItem value="under-review" className="font-medium">Under Review</SelectItem>
                 <SelectItem value="resolved" className="font-medium">Resolved</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={selectedSite} onValueChange={setSelectedSite}>
+              <SelectTrigger className="w-full sm:w-[180px] font-medium hover:bg-accent hover:text-accent-foreground">
+                <SelectValue placeholder="Filter by site" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="font-medium">All Sites</SelectItem>
+                {sites.map(site => (
+                  <SelectItem key={site.id} value={site.id.toString()} className="font-medium">
+                    {site.site_name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
              <Select value={selectedYear} onValueChange={setSelectedYear}>

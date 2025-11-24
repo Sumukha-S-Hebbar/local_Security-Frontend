@@ -34,6 +34,7 @@ import Link from 'next/link';
 import { IncidentStatusSummary } from './incident-status-summary';
 import { fetchData } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getApiBaseUrl } from '@/lib/get-api-url';
 
 type IncidentListItem = {
     id: number;
@@ -132,7 +133,7 @@ export function IncidentsPageClient() {
       let fetchUrl = url;
       if (!fetchUrl) {
         const params = new URLSearchParams({
-            page: '1',
+            page: currentPage.toString(),
             page_size: ITEMS_PER_PAGE.toString(),
         });
         
@@ -151,7 +152,7 @@ export function IncidentsPageClient() {
         }
         
         if (searchQuery) params.append('search', searchQuery);
-        if (selectedSite !== 'all') params.append('site_name', selectedSite);
+        if (selectedSite !== 'all') params.append('site', selectedSite);
         if (selectedYear !== 'all') params.append('year', selectedYear);
         if (selectedMonth !== 'all') params.append('month', selectedMonth);
         
@@ -180,17 +181,24 @@ export function IncidentsPageClient() {
       } finally {
         setIsLoading(false);
       }
-   }, [loggedInOrg, token, selectedStatus, searchQuery, selectedSite, selectedYear, selectedMonth]);
+   }, [loggedInOrg, token, selectedStatus, searchQuery, selectedSite, selectedYear, selectedMonth, currentPage]);
 
   useEffect(() => {
-    fetchIncidents();
-  }, [fetchIncidents]);
+    if (loggedInOrg && token) {
+      fetchIncidents();
+    }
+  // Omitting fetchIncidents from deps to avoid re-running on every filter change indirectly
+  // The search-driven useEffect below will handle it.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loggedInOrg, token]);
 
 
   useEffect(() => {
     setCurrentPage(1);
-    fetchIncidents();
-  }, [searchQuery, selectedStatus, selectedSite, selectedYear, selectedMonth]);
+    if (loggedInOrg && token) {
+        fetchIncidents();
+    }
+  }, [searchQuery, selectedStatus, selectedSite, selectedYear, selectedMonth, loggedInOrg, token]);
 
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
@@ -296,6 +304,19 @@ export function IncidentsPageClient() {
                 <SelectItem value="active" className="font-medium">Active</SelectItem>
                 <SelectItem value="under-review" className="font-medium">Under Review</SelectItem>
                 <SelectItem value="resolved" className="font-medium">Resolved</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={selectedSite} onValueChange={setSelectedSite}>
+              <SelectTrigger className="w-full sm:w-[180px] font-medium hover:bg-accent hover:text-accent-foreground">
+                <SelectValue placeholder="Filter by site" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="font-medium">All Sites</SelectItem>
+                {sites.map(site => (
+                  <SelectItem key={site.id} value={site.id.toString()} className="font-medium">
+                    {site.site_name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Select value={selectedYear} onValueChange={setSelectedYear}>
