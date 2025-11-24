@@ -191,10 +191,10 @@ export default function AgencyHomePage() {
         </div>
       </div>
 
-      <AgencyAnalyticsDashboard counts={data.basic_counts} />
-      
       <IncidentStatusBreakdown counts={data.basic_counts} />
 
+      <AgencyAnalyticsDashboard counts={data.basic_counts} />
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <GuardPerformanceBreakdown performance={data.guard_performance} />
         <PatrollingOfficerPerformance performance={data.patrol_officer_performance} />
