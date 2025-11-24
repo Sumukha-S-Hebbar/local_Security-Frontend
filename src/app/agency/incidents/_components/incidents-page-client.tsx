@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import type { Site, Organization } from '@/types';
 import {
@@ -34,6 +34,7 @@ import Link from 'next/link';
 import { IncidentStatusSummary } from './incident-status-summary';
 import { fetchData } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getApiBaseUrl } from '@/lib/get-api-url';
 
 type IncidentListItem = {
     id: number;
@@ -86,6 +87,8 @@ export function IncidentsPageClient() {
   const [selectedMonth, setSelectedMonth] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [nextUrl, setNextUrl] = useState<string | null>(null);
+  const [prevUrl, setPrevUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -108,7 +111,7 @@ export function IncidentsPageClient() {
   }, []);
 
   useEffect(() => {
-    if (!loggedInOrg) return;
+    if (!loggedInOrg || !token) return;
 
     const fetchSupportingData = async () => {
         const sitesUrl = `/agency/security/${loggedInOrg.code}/sites/list/`;
@@ -119,14 +122,15 @@ export function IncidentsPageClient() {
     fetchSupportingData();
   }, [loggedInOrg, token]);
   
-   useEffect(() => {
-    if (!loggedInOrg) return;
+   const fetchIncidents = useCallback(async (url?: string) => {
+    if (!loggedInOrg || !token) return;
 
-    const fetchFilteredIncidents = async () => {
-      setIsLoading(true);
-      
+    setIsLoading(true);
+
+    let fetchUrl = url;
+    if (!fetchUrl) {
       const params = new URLSearchParams({
-        page: currentPage.toString(),
+        page: '1',
         page_size: ITEMS_PER_PAGE.toString(),
       });
       
@@ -149,15 +153,23 @@ export function IncidentsPageClient() {
       if (selectedYear !== 'all') params.append('year', selectedYear);
       if (selectedMonth !== 'all') params.append('month', selectedMonth);
       
-      const url = `/agency/security/${loggedInOrg.code}/incidents/list/?${params.toString()}`;
-
+      fetchUrl = `/agency/security/${loggedInOrg.code}/incidents/list/?${params.toString()}`;
+    }
+      
       try {
-        const data = await fetchData<PaginatedIncidentsResponse>(url, token || undefined);
+        const data = await fetchData<PaginatedIncidentsResponse>(fetchUrl, token || undefined);
         setIncidents(data?.results || []);
         setTotalCount(data?.count || 0);
+        setNextUrl(data?.next || null);
+        setPrevUrl(data?.previous || null);
         if (data?.counts) {
             setIncidentCounts(data.counts);
         }
+        
+        const urlObject = new URL(fetchUrl, getApiBaseUrl());
+        const pageParam = urlObject.searchParams.get('page');
+        setCurrentPage(pageParam ? parseInt(pageParam) : 1);
+
       } catch (error) {
         console.error("Failed to fetch filtered incidents:", error);
         setIncidents([]);
@@ -165,14 +177,20 @@ export function IncidentsPageClient() {
       } finally {
         setIsLoading(false);
       }
-    };
+  }, [loggedInOrg, token, selectedStatus, searchQuery, selectedSite, selectedYear, selectedMonth]);
 
-    fetchFilteredIncidents();
-  }, [loggedInOrg, selectedStatus, searchQuery, selectedSite, selectedYear, selectedMonth, currentPage, token]);
+  useEffect(() => {
+    if(loggedInOrg && token) {
+      fetchIncidents();
+    }
+  }, [loggedInOrg, token, fetchIncidents]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedStatus, selectedSite, selectedYear, selectedMonth]);
+    if(loggedInOrg && token) {
+      fetchIncidents();
+    }
+  }, [searchQuery, selectedStatus, selectedSite, selectedYear, selectedMonth, loggedInOrg, token]);
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -370,8 +388,8 @@ export function IncidentsPageClient() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
+                            onClick={() => fetchIncidents(prevUrl)}
+                            disabled={!prevUrl || isLoading}
                             className="w-20"
                         >
                             Previous
@@ -380,8 +398,8 @@ export function IncidentsPageClient() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages || totalPages === 0}
+                            onClick={() => fetchIncidents(nextUrl)}
+                            disabled={!nextUrl || isLoading}
                             className="w-20"
                         >
                             Next
