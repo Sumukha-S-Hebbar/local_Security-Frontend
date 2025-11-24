@@ -23,6 +23,13 @@ export function IncidentStatusBreakdown({
 
   const statusCards = [
     {
+      status: 'sos',
+      count: counts.sos_count,
+      icon: ShieldAlert,
+      className: 'bg-destructive/10 text-destructive',
+      ring: 'ring-destructive',
+    },
+    {
       status: 'active',
       count: counts.active_incidents_count,
       icon: ShieldAlert,
@@ -58,7 +65,7 @@ export function IncidentStatusBreakdown({
             </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {statusCards.map((item) => (
             <div
               key={item.status}
