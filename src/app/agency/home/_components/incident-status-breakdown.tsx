@@ -27,8 +27,8 @@ export function IncidentStatusBreakdown({
       label: 'SOS',
       count: counts.sos_count,
       icon: ShieldAlert,
-      className: 'bg-destructive/10 text-destructive',
-      ring: 'ring-destructive',
+      className: 'bg-[#FF0000]/10 text-[#FF0000]',
+      ring: 'ring-[#FF0000]',
     },
     {
       status: 'active',

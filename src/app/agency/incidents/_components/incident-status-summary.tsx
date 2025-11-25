@@ -31,9 +31,9 @@ export function IncidentStatusSummary({
       count: counts.sos_count,
       label: 'SOS',
       icon: ShieldAlert,
-      color: 'text-destructive',
-      bg: 'bg-destructive/10',
-      ring: 'ring-destructive'
+      color: 'text-[#FF0000]',
+      bg: 'bg-[#FF0000]/10',
+      ring: 'ring-[#FF0000]'
     },
     {
       status: 'active',
