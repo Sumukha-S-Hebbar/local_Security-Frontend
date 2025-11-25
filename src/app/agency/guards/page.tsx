@@ -849,13 +849,9 @@ export default function AgencyGuardsPage() {
                           return (
                             <TableRow
                               key={guard.id}
-                              onClick={() => router.push(`/agency/guards/${guard.id}`)}
-                              className="cursor-pointer hover:bg-accent hover:text-accent-foreground group"
                             >
                               <TableCell>
-                                <Button asChild variant="link" className="p-0 h-auto font-medium group-hover:text-accent-foreground" onClick={(e) => e.stopPropagation()}>
-                                  <Link href={`/agency/guards/${guard.id}`}>{guard.employee_id}</Link>
-                                </Button>
+                                <p className="font-medium">{guard.employee_id}</p>
                               </TableCell>
                               <TableCell>
                                 <p className="font-medium">{guardName}</p>
@@ -865,20 +861,20 @@ export default function AgencyGuardsPage() {
                                   {guard.email && (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                       <Mail className="h-4 w-4 flex-shrink-0" />
-                                      <a href={`mailto:${guard.email}`} className="hover:underline font-medium group-hover:text-accent-foreground" onClick={(e) => e.stopPropagation()}>{guard.email}</a>
+                                      <a href={`mailto:${guard.email}`} className="hover:underline font-medium" onClick={(e) => e.stopPropagation()}>{guard.email}</a>
                                     </div>
                                   )}
                                   {guard.phone && (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                       <Phone className="h-4 w-4 flex-shrink-0" />
-                                      <a href={`tel:${guard.phone}`} className="hover:underline font-medium group-hover:text-accent-foreground" onClick={(e) => e.stopPropagation()}>{guard.phone}</a>
+                                      <a href={`tel:${guard.phone}`} className="hover:underline font-medium" onClick={(e) => e.stopPropagation()}>{guard.phone}</a>
                                     </div>
                                   )}
                                 </div>
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-2">
-                                  <ShieldAlert className="h-4 w-4 text-muted-foreground group-hover:text-accent-foreground" />
+                                  <ShieldAlert className="h-4 w-4 text-muted-foreground" />
                                   <span className="font-medium">{guard.incident_count}</span>
                                 </div>
                               </TableCell>
