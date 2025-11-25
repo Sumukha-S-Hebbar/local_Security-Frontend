@@ -24,6 +24,7 @@ export function IncidentStatusBreakdown({
   const statusCards = [
     {
       status: 'sos',
+      label: 'SOS',
       count: counts.sos_count,
       icon: ShieldAlert,
       className: 'bg-destructive/10 text-destructive',
@@ -31,6 +32,7 @@ export function IncidentStatusBreakdown({
     },
     {
       status: 'active',
+      label: 'Active',
       count: counts.active_incidents_count,
       icon: ShieldAlert,
       className: 'bg-destructive/10 text-destructive',
@@ -38,6 +40,7 @@ export function IncidentStatusBreakdown({
     },
     {
       status: 'under-review',
+      label: 'Under Review',
       count: counts.under_review_incidents_count,
       icon: ShieldQuestion,
       className: 'bg-[#FFC107]/10 text-[#FFC107]',
@@ -45,6 +48,7 @@ export function IncidentStatusBreakdown({
     },
     {
       status: 'resolved',
+      label: 'Resolved',
       count: counts.resolved_incidents_count,
       icon: CheckCircle2,
       className: 'bg-chart-2/10 text-chart-2',
@@ -79,7 +83,7 @@ export function IncidentStatusBreakdown({
             >
               <item.icon className="h-8 w-8" />
               <div>
-                <p className="font-medium capitalize">{item.status.replace('-', ' ')}</p>
+                <p className="font-medium">{item.label}</p>
                 <p className="text-2xl font-bold">{item.count}</p>
               </div>
             </div>
