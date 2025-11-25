@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, Suspense, useCallback } from 'react';
@@ -36,6 +37,7 @@ import Link from 'next/link';
 import { fetchData } from '@/lib/api';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { IncidentStatusBreakdown as TowercoIncidentStatusBreakdown } from './_components/incident-status-breakdown';
 
 
 export type BasicCounts = {
@@ -43,6 +45,9 @@ export type BasicCounts = {
   total_guards_count: number;
   total_sites_count: number;
   total_agencies_count: number;
+  sos_count: number;
+  under_review_incidents_count: number;
+  resolved_incidents_count: number;
 };
 
 export type IncidentListItem = {
@@ -221,6 +226,8 @@ function TowercoHomePageContent() {
           </p>
         </div>
       </div>
+
+      <TowercoIncidentStatusBreakdown counts={data.basic_counts} />
       
       <TowercoAnalyticsDashboard
         counts={data.basic_counts}
