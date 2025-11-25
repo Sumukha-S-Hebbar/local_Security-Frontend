@@ -35,8 +35,8 @@ export function IncidentStatusBreakdown({
       label: 'Active',
       count: counts.active_incidents_count,
       icon: ShieldAlert,
-      className: 'bg-destructive/10 text-destructive',
-      ring: 'ring-destructive',
+      className: 'bg-orange-500/10 text-orange-500',
+      ring: 'ring-orange-500',
     },
     {
       status: 'under-review',

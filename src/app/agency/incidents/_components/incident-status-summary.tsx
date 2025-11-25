@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import type { Incident } from '@/types';
@@ -41,9 +40,9 @@ export function IncidentStatusSummary({
       count: counts.active_incidents_count,
       label: 'Active',
       icon: ShieldAlert,
-      color: 'text-destructive',
-      bg: 'bg-destructive/10',
-      ring: 'ring-destructive'
+      color: 'text-orange-500',
+      bg: 'bg-orange-500/10',
+      ring: 'ring-orange-500'
     },
     {
       status: 'under-review',
