@@ -227,11 +227,10 @@ function TowercoHomePageContent() {
         </div>
       </div>
 
-      <TowercoIncidentStatusBreakdown counts={data.basic_counts} />
-      
-      <TowercoAnalyticsDashboard
-        counts={data.basic_counts}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TowercoIncidentStatusBreakdown counts={data.basic_counts} />
+        <TowercoAnalyticsDashboard counts={data.basic_counts} />
+      </div>
       
       <SiteStatusBreakdown siteStatusData={data.site_status} />
       <AgencyPerformance performanceData={data.agency_performance} />
