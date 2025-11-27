@@ -50,7 +50,7 @@ export function AgencyAnalyticsDashboard({
     },
     {
       key: 'guards',
-      label: 'Total Guards',
+      label: 'Guards',
       count: counts.total_guards_count,
       description: 'Personnel across all sites',
       icon: Users,
