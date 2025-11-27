@@ -27,7 +27,7 @@ export function IncidentStatusBreakdown({
       label: 'SOS',
       count: counts.sos_count,
       icon: ShieldAlert,
-      className: 'bg-[#FF0000]/10 text-[#FF0000]',
+      className: 'bg-[#FF0000] text-white',
       ring: 'ring-[#FF0000]',
     },
     {
@@ -35,7 +35,7 @@ export function IncidentStatusBreakdown({
       label: 'Active',
       count: counts.active_incidents_count,
       icon: ShieldAlert,
-      className: 'bg-orange-500/10 text-orange-500',
+      className: 'bg-orange-500 text-white',
       ring: 'ring-orange-500',
     },
     {
@@ -43,7 +43,7 @@ export function IncidentStatusBreakdown({
       label: 'Under Review',
       count: counts.under_review_incidents_count,
       icon: ShieldQuestion,
-      className: 'bg-[#FFC107]/10 text-[#FFC107]',
+      className: 'bg-[#FFC107] text-white',
       ring: 'ring-[#FFC107]',
     },
     {
@@ -51,7 +51,7 @@ export function IncidentStatusBreakdown({
       label: 'Resolved',
       count: counts.resolved_incidents_count,
       icon: CheckCircle2,
-      className: 'bg-chart-2/10 text-chart-2',
+      className: 'bg-chart-2 text-white',
       ring: 'ring-chart-2',
     },
   ] as const;
