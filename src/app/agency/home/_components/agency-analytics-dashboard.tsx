@@ -27,6 +27,17 @@ export function AgencyAnalyticsDashboard({
       ring: 'ring-purple-600'
     },
     {
+      key: 'unassigned_sites',
+      label: 'Unassigned Sites',
+      count: counts.total_unassigned_sites_count,
+      description: 'Sites needing personnel',
+      icon: Building2,
+      href: '/agency/sites?tab=unassigned',
+      color: 'text-orange-600',
+      bg: 'bg-orange-600/10',
+      ring: 'ring-orange-600'
+    },
+    {
       key: 'patrol_officers',
       label: 'Patrolling Officers',
       count: counts.total_patrol_officers_count,
@@ -48,17 +59,6 @@ export function AgencyAnalyticsDashboard({
       bg: 'bg-blue-600/10',
       ring: 'ring-blue-600'
     },
-    {
-      key: 'unassigned_sites',
-      label: 'Unassigned Sites',
-      count: counts.total_unassigned_sites_count,
-      description: 'Sites needing personnel',
-      icon: Building2,
-      href: '/agency/sites?tab=unassigned',
-      color: 'text-orange-600',
-      bg: 'bg-orange-600/10',
-      ring: 'ring-orange-600'
-    }
   ];
   
   return (
