@@ -23,50 +23,50 @@ export function TowercoAnalyticsDashboard({
   const router = useRouter();
 
   const resourceCards = [
-      {
-          key: 'patrol-officers',
-          label: 'Total Patrolling Officers',
-          count: counts.total_patrol_officers_count,
-          description: 'Team leaders managing guards',
-          icon: UserCheck,
-          href: '/towerco/patrolling-officers',
-          color: 'text-cyan-600',
-          bg: 'bg-cyan-600/10',
-          ring: 'ring-cyan-600'
-      },
-      {
-          key: 'guards',
-          label: 'Total Guards',
-          count: counts.total_guards_count,
-          description: 'Personnel across all agencies',
-          icon: Users,
-          href: '#', // TBD
-          color: 'text-blue-600',
-          bg: 'bg-blue-600/10',
-          ring: 'ring-blue-600'
-      },
-      {
-          key: 'sites',
-          label: 'Total Sites',
-          count: counts.total_sites_count,
-          description: 'All sites under your portfolio.',
-          icon: Building2,
-          href: '/towerco/sites',
-          color: 'text-purple-600',
-          bg: 'bg-purple-600/10',
-          ring: 'ring-purple-600'
-      },
-      {
-          key: 'agencies',
-          label: 'Security Agencies',
-          count: counts.total_agencies_count,
-          description: 'Contracted security partners',
-          icon: Briefcase,
-          href: '/towerco/agencies',
-          color: 'text-indigo-600',
-          bg: 'bg-indigo-600/10',
-          ring: 'ring-indigo-600'
-      }
+    {
+        key: 'sites',
+        label: 'Sites',
+        count: counts.total_sites_count,
+        description: 'All sites under your portfolio.',
+        icon: Building2,
+        href: '/towerco/sites',
+        color: 'text-purple-600',
+        bg: 'bg-purple-600/10',
+        ring: 'ring-purple-600'
+    },
+    {
+        key: 'agencies',
+        label: 'Security Agencies',
+        count: counts.total_agencies_count,
+        description: 'Contracted security partners',
+        icon: Briefcase,
+        href: '/towerco/agencies',
+        color: 'text-indigo-600',
+        bg: 'bg-indigo-600/10',
+        ring: 'ring-indigo-600'
+    },
+    {
+        key: 'patrol-officers',
+        label: 'Patrolling Officers',
+        count: counts.total_patrol_officers_count,
+        description: 'Team leaders managing guards',
+        icon: UserCheck,
+        href: '/towerco/patrolling-officers',
+        color: 'text-cyan-600',
+        bg: 'bg-cyan-600/10',
+        ring: 'ring-cyan-600'
+    },
+    {
+        key: 'guards',
+        label: 'Guards',
+        count: counts.total_guards_count,
+        description: 'Personnel across all agencies',
+        icon: Users,
+        href: '#', // TBD
+        color: 'text-blue-600',
+        bg: 'bg-blue-600/10',
+        ring: 'ring-blue-600'
+    }
   ];
 
   return (
