@@ -45,6 +45,8 @@ export type BasicCounts = {
     under_review_incidents_count: number;
     resolved_incidents_count: number;
     total_sites_count: number;
+    total_assigned_sites_count: number;
+    total_unassigned_sites_count: number;
     total_guards_count: number;
     total_patrol_officers_count: number;
     total_incidents_count?: number;
