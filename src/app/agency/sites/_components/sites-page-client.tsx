@@ -70,6 +70,8 @@ type ApiCity = {
 export function SitesPageClient() {
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'assigned';
 
   const [assignedSites, setAssignedSites] = useState<Site[]>([]);
   const [unassignedSites, setUnassignedSites] = useState<Site[]>([]);
@@ -80,7 +82,7 @@ export function SitesPageClient() {
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState('assigned');
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   // State for Assigned Sites filters
   const [assignedSearchQuery, setAssignedSearchQuery] = useState('');
@@ -522,6 +524,13 @@ export function SitesPageClient() {
     }
   };
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(searchParams);
+    params.set('tab', tab);
+    router.push(`?${params.toString()}`);
+  };
+
 
   if (isLoading && (assignedSites.length === 0 && unassignedSites.length === 0)) {
     return (
@@ -542,7 +551,7 @@ export function SitesPageClient() {
       </div>
 
       <Card>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
           <CardHeader>
              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="assigned">Assigned</TabsTrigger>
