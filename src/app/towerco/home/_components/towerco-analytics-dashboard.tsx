@@ -2,9 +2,10 @@
 'use client';
 
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, Briefcase, UserCheck, Users } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Briefcase, UserCheck, Users, Building2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 type BasicCounts = {
   total_patrol_officers_count: number;
@@ -21,58 +22,83 @@ export function TowercoAnalyticsDashboard({
 }) {
   const router = useRouter();
 
+  const resourceCards = [
+      {
+          key: 'patrol-officers',
+          label: 'Total Patrolling Officers',
+          count: counts.total_patrol_officers_count,
+          description: 'Team leaders managing guards',
+          icon: UserCheck,
+          href: '/towerco/patrolling-officers',
+          color: 'text-cyan-600',
+          bg: 'bg-cyan-600/10',
+          ring: 'ring-cyan-600'
+      },
+      {
+          key: 'guards',
+          label: 'Total Guards',
+          count: counts.total_guards_count,
+          description: 'Personnel across all agencies',
+          icon: Users,
+          href: '#', // TBD
+          color: 'text-blue-600',
+          bg: 'bg-blue-600/10',
+          ring: 'ring-blue-600'
+      },
+      {
+          key: 'sites',
+          label: 'Total Sites',
+          count: counts.total_sites_count,
+          description: 'All sites under your portfolio.',
+          icon: Building2,
+          href: '/towerco/sites',
+          color: 'text-purple-600',
+          bg: 'bg-purple-600/10',
+          ring: 'ring-purple-600'
+      },
+      {
+          key: 'agencies',
+          label: 'Security Agencies',
+          count: counts.total_agencies_count,
+          description: 'Contracted security partners',
+          icon: Briefcase,
+          href: '/towerco/agencies',
+          color: 'text-indigo-600',
+          bg: 'bg-indigo-600/10',
+          ring: 'ring-indigo-600'
+      }
+  ];
+
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Card className="transition-all hover:bg-accent hover:text-accent-foreground group cursor-pointer" onClick={() => router.push('/towerco/patrolling-officers')}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Patrolling Officers</CardTitle>
-          <UserCheck className="h-4 w-4 text-muted-foreground group-hover:text-accent-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{counts.total_patrol_officers_count}</div>
-          <p className="text-xs text-muted-foreground font-medium group-hover:text-accent-foreground">
-            Team leaders managing guards
-          </p>
-        </CardContent>
-      </Card>
-      <Card className="transition-all hover:bg-accent hover:text-accent-foreground group cursor-pointer">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Guards</CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground group-hover:text-accent-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{counts.total_guards_count}</div>
-          <p className="text-xs text-muted-foreground font-medium group-hover:text-accent-foreground">
-            Personnel across all agencies
-          </p>
-        </CardContent>
-      </Card>
-      <Card className="transition-all hover:bg-accent hover:text-accent-foreground group cursor-pointer" onClick={() => router.push('/towerco/sites')}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Sites</CardTitle>
-          <Building2 className="h-4 w-4 text-muted-foreground group-hover:text-accent-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{counts.total_sites_count}</div>
-          <p className="text-xs text-muted-foreground font-medium group-hover:text-accent-foreground">
-            All sites under your portfolio.
-          </p>
-        </CardContent>
-      </Card>
-      <Card className="transition-all hover:bg-accent hover:text-accent-foreground group cursor-pointer" onClick={() => router.push('/towerco/agencies')}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Security Agencies
-          </CardTitle>
-          <Briefcase className="h-4 w-4 text-muted-foreground group-hover:text-accent-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{counts.total_agencies_count}</div>
-          <p className="text-xs text-muted-foreground font-medium group-hover:text-accent-foreground">
-            Contracted security partners
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Resource Status</CardTitle>
+        <CardDescription className="font-medium">
+          Click a resource to see the list.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-4">
+          {resourceCards.map((item) => (
+            <div
+              key={item.key}
+              onClick={() => item.href !== '#' && router.push(item.href)}
+              role="button"
+              tabIndex={0}
+              className={cn(
+                'flex cursor-pointer items-center gap-4 rounded-lg p-4 transition-all hover:shadow-md',
+                item.bg, 'hover:ring-2', item.ring
+              )}
+            >
+              <item.icon className={cn('h-8 w-8', item.color)} />
+              <div>
+                <p className={cn('font-semibold', item.color)}>{item.label}</p>
+                <p className="text-2xl font-bold">{item.count}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
