@@ -63,13 +63,13 @@ export function IncidentStatusBreakdown({
   return (
     <Card>
       <CardHeader>
-            <CardTitle>Incident Status Breakdown</CardTitle>
+            <CardTitle>Incident Status</CardTitle>
             <CardDescription className="font-medium">
             Click a status to see the list of incidents.
             </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {statusCards.map((item) => (
             <div
               key={item.status}

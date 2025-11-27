@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import type { BasicCounts } from '../page';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Users, Building2, UserCheck, ShieldAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 export function AgencyAnalyticsDashboard({
   counts,
@@ -12,57 +13,84 @@ export function AgencyAnalyticsDashboard({
   counts: BasicCounts;
 }) {
   const router = useRouter();
+
+  const resourceCards = [
+    {
+      key: 'assigned_sites',
+      label: 'Assigned Sites',
+      count: counts.total_assigned_sites_count,
+      description: 'Sites with assigned personnel',
+      icon: Building2,
+      href: '/agency/sites?tab=assigned',
+      color: 'text-purple-600',
+      bg: 'bg-purple-600/10',
+      ring: 'ring-purple-600'
+    },
+    {
+      key: 'patrol_officers',
+      label: 'Patrolling Officers',
+      count: counts.total_patrol_officers_count,
+      description: 'Team leaders managing guards',
+      icon: UserCheck,
+      href: '/agency/patrolling-officers',
+      color: 'text-cyan-600',
+      bg: 'bg-cyan-600/10',
+      ring: 'ring-cyan-600'
+    },
+    {
+      key: 'guards',
+      label: 'Total Guards',
+      count: counts.total_guards_count,
+      description: 'Personnel across all sites',
+      icon: Users,
+      href: '/agency/guards',
+      color: 'text-blue-600',
+      bg: 'bg-blue-600/10',
+      ring: 'ring-blue-600'
+    },
+    {
+      key: 'unassigned_sites',
+      label: 'Unassigned Sites',
+      count: counts.total_unassigned_sites_count,
+      description: 'Sites needing personnel',
+      icon: Building2,
+      href: '/agency/sites?tab=unassigned',
+      color: 'text-orange-600',
+      bg: 'bg-orange-600/10',
+      ring: 'ring-orange-600'
+    }
+  ];
   
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="transition-all hover:bg-accent hover:text-accent-foreground group cursor-pointer" onClick={() => router.push('/agency/sites?tab=assigned')}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Assigned Sites</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground group-hover:text-accent-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{counts.total_assigned_sites_count}</div>
-            <p className="text-xs text-muted-foreground font-medium group-hover:text-accent-foreground">
-              Sites with assigned personnel
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="transition-all hover:bg-accent hover:text-accent-foreground group cursor-pointer" onClick={() => router.push('/agency/patrolling-officers')}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Patrolling Officers</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground group-hover:text-accent-foreground" />
-            </CardHeader>
-            <CardContent>
-            <div className="text-2xl font-bold">{counts.total_patrol_officers_count}</div>
-            <p className="text-xs text-muted-foreground font-medium group-hover:text-accent-foreground">
-                Team leaders managing guards
-            </p>
-            </CardContent>
-        </Card>
-        <Card className="transition-all hover:bg-accent hover:text-accent-foreground group cursor-pointer" onClick={() => router.push('/agency/guards')}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Guards</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground group-hover:text-accent-foreground" />
-            </CardHeader>
-            <CardContent>
-            <div className="text-2xl font-bold">{counts.total_guards_count}</div>
-            <p className="text-xs text-muted-foreground font-medium group-hover:text-accent-foreground">
-                Personnel across all sites
-            </p>
-            </CardContent>
-        </Card>
-        <Card className="transition-all hover:bg-accent hover:text-accent-foreground group cursor-pointer" onClick={() => router.push('/agency/sites?tab=unassigned')}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Unassigned Sites</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground group-hover:text-accent-foreground" />
-            </CardHeader>
-            <CardContent>
-            <div className="text-2xl font-bold">{counts.total_unassigned_sites_count}</div>
-            <p className="text-xs text-muted-foreground font-medium group-hover:text-accent-foreground">
-                Sites needing personnel
-            </p>
-            </CardContent>
-        </Card>
-    </div>
+     <Card>
+      <CardHeader>
+        <CardTitle>Resource Status</CardTitle>
+        <CardDescription className="font-medium">
+          Click a resource to see the list.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-4">
+          {resourceCards.map((item) => (
+            <div
+              key={item.key}
+              onClick={() => item.href !== '#' && router.push(item.href)}
+              role="button"
+              tabIndex={0}
+              className={cn(
+                'flex cursor-pointer items-center gap-4 rounded-lg p-4 transition-all hover:shadow-md',
+                item.bg, 'hover:ring-2', item.ring
+              )}
+            >
+              <item.icon className={cn('h-8 w-8', item.color)} />
+              <div>
+                <p className={cn('font-semibold', item.color)}>{item.label}</p>
+                <p className="text-2xl font-bold">{item.count}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
