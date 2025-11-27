@@ -42,7 +42,7 @@ export function TowercoAnalyticsDashboard({
         icon: Briefcase,
         href: '/towerco/agencies',
         color: 'text-black',
-        bg: 'bg-[#00b48d]',
+        bg: 'bg-[#00b4d8]',
         ring: 'ring-indigo-600'
     },
     {
@@ -53,7 +53,7 @@ export function TowercoAnalyticsDashboard({
         icon: UserCheck,
         href: '/towerco/patrolling-officers',
         color: 'text-black',
-        bg: 'bg-[#00b48d]',
+        bg: 'bg-[#00b4d8]',
         ring: 'ring-cyan-600'
     },
     {

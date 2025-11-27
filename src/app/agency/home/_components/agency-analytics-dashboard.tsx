@@ -33,7 +33,7 @@ export function AgencyAnalyticsDashboard({
       icon: Building2,
       href: '/agency/sites?tab=unassigned',
       color: 'text-black',
-      bg: 'bg-[#00b48d]',
+      bg: 'bg-[#00b4d8]',
       ring: 'ring-orange-600'
     },
     {
@@ -44,7 +44,7 @@ export function AgencyAnalyticsDashboard({
       icon: UserCheck,
       href: '/agency/patrolling-officers',
       color: 'text-black',
-      bg: 'bg-[#00b48d]',
+      bg: 'bg-[#00b4d8]',
       ring: 'ring-cyan-600'
     },
     {
