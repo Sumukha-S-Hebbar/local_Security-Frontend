@@ -30,9 +30,9 @@ export function TowercoAnalyticsDashboard({
         description: 'All sites under your portfolio.',
         icon: Building2,
         href: '/towerco/sites',
-        color: 'text-purple-600',
-        bg: 'bg-purple-600/10',
-        ring: 'ring-purple-600'
+        color: 'text-white',
+        bg: 'bg-[#1b2a41]',
+        ring: 'ring-blue-600'
     },
     {
         key: 'agencies',
@@ -41,8 +41,8 @@ export function TowercoAnalyticsDashboard({
         description: 'Contracted security partners',
         icon: Briefcase,
         href: '/towerco/agencies',
-        color: 'text-indigo-600',
-        bg: 'bg-indigo-600/10',
+        color: 'text-black',
+        bg: 'bg-[#00b48d]',
         ring: 'ring-indigo-600'
     },
     {
@@ -52,8 +52,8 @@ export function TowercoAnalyticsDashboard({
         description: 'Team leaders managing guards',
         icon: UserCheck,
         href: '/towerco/patrolling-officers',
-        color: 'text-cyan-600',
-        bg: 'bg-cyan-600/10',
+        color: 'text-black',
+        bg: 'bg-[#00b48d]',
         ring: 'ring-cyan-600'
     },
     {
@@ -63,8 +63,8 @@ export function TowercoAnalyticsDashboard({
         description: 'Personnel across all agencies',
         icon: Users,
         href: '#', // TBD
-        color: 'text-blue-600',
-        bg: 'bg-blue-600/10',
+        color: 'text-white',
+        bg: 'bg-[#1b2a41]',
         ring: 'ring-blue-600'
     }
   ];
@@ -87,13 +87,13 @@ export function TowercoAnalyticsDashboard({
               tabIndex={0}
               className={cn(
                 'flex cursor-pointer items-center gap-4 rounded-lg p-4 transition-all hover:shadow-md',
-                item.bg, 'hover:ring-2', item.ring
+                item.bg
               )}
             >
               <item.icon className={cn('h-8 w-8', item.color)} />
               <div>
                 <p className={cn('font-semibold', item.color)}>{item.label}</p>
-                <p className="text-2xl font-bold">{item.count}</p>
+                <p className={cn("text-2xl font-bold", item.color)}>{item.count}</p>
               </div>
             </div>
           ))}
