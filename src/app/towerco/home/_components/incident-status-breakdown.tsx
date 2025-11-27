@@ -63,7 +63,7 @@ export function IncidentStatusBreakdown({
   return (
     <Card>
       <CardHeader>
-            <CardTitle>Incident Status Breakdown</CardTitle>
+            <CardTitle>Incident Status</CardTitle>
             <CardDescription className="font-medium">
             Click a status to see the list of incidents.
             </CardDescription>
