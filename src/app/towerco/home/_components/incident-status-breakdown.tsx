@@ -10,7 +10,7 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { CheckCircle2, ShieldAlert, ShieldQuestion } from 'lucide-react';
+import { CheckCircle2, ShieldAlert, ShieldQuestion, Siren } from 'lucide-react';
 import type { BasicCounts } from '../page';
 
 
@@ -26,7 +26,7 @@ export function IncidentStatusBreakdown({
       status: 'sos',
       label: 'SOS',
       count: counts.sos_count,
-      icon: ShieldAlert,
+      icon: Siren,
       className: 'bg-[#FF0000] text-white',
       ring: 'ring-[#FF0000]',
     },

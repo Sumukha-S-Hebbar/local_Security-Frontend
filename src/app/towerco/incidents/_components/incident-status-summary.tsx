@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { ShieldAlert, ShieldQuestion, CheckCircle2 } from 'lucide-react';
+import { ShieldAlert, ShieldQuestion, CheckCircle2, Siren } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type IncidentCounts = {
@@ -28,7 +28,7 @@ export function IncidentStatusSummary({
       status: 'sos',
       count: counts.sos_count,
       label: 'SOS',
-      icon: ShieldAlert,
+      icon: Siren,
       color: 'text-[#FF0000]',
       bg: 'bg-[#FF0000]/10',
       ring: 'ring-[#FF0000]'
