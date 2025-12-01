@@ -59,6 +59,7 @@ import { fetchData } from '@/lib/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getApiBaseUrl } from '@/lib/get-api-url';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 
 
 const addSiteFormSchema = z.object({
@@ -91,6 +92,14 @@ type ApiCity = {
     name: string;
 }
 
+type AgencyForAssignment = {
+  id: number;
+  subcon_id: string;
+  name: string;
+  region: string;
+  city: string;
+}
+
 const ITEMS_PER_PAGE = 10;
 
 export function SitesPageClient() {
@@ -102,7 +111,7 @@ export function SitesPageClient() {
 
   const [assignedSites, setAssignedSites] = useState<Site[]>([]);
   const [unassignedSites, setUnassignedSites] = useState<Site[]>([]);
-  const [allAgencies, setAllAgencies] = useState<SecurityAgency[]>([]);
+  const [allAgencies, setAllAgencies] = useState<AgencyForAssignment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loggedInOrg, setLoggedInOrg] = useState<Organization | null>(null);
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
@@ -174,8 +183,8 @@ export function SitesPageClient() {
   const fetchAgencies = useCallback(async () => {
     if (!loggedInOrg || !token) return;
     try {
-        const agenciesResponse = await fetchData<{results: SecurityAgency[]}>(`/org/security/${loggedInOrg.code}/security-agencies/list`, token);
-        setAllAgencies(agenciesResponse?.results || []);
+        const agenciesResponse = await fetchData<AgencyForAssignment[]>(`/org/security/${loggedInOrg.code}/assign_agency/list/`, token);
+        setAllAgencies(agenciesResponse || []);
     } catch (error) {
         toast({
             variant: 'destructive',
@@ -537,6 +546,44 @@ export function SitesPageClient() {
     setIsUploadDialogOpen(false);
     fetchSites('Unassigned', 1);
   }
+
+  const renderAgencySelection = (site: Site) => {
+    const agenciesInCity = allAgencies.filter(agency => agency.city === site.city);
+    const agenciesInRegion = allAgencies.filter(agency => agency.region === site.region && agency.city !== site.city);
+    const otherAgencies = allAgencies.filter(agency => agency.region !== site.region);
+
+    const renderItems = (agencyList: AgencyForAssignment[]) => agencyList.map((agency) => (
+        <SelectItem key={agency.id} value={agency.id.toString()}>
+            {agency.name}
+        </SelectItem>
+    ));
+
+    return (
+        <SelectContent>
+            {agenciesInCity.length > 0 && (
+                <>
+                    <DropdownMenuLabel>In {site.city}</DropdownMenuLabel>
+                    {renderItems(agenciesInCity)}
+                </>
+            )}
+            {agenciesInRegion.length > 0 && (
+                <>
+                    {agenciesInCity.length > 0 && <DropdownMenuSeparator />}
+                    <DropdownMenuLabel>In {site.region}</DropdownMenuLabel>
+                    {renderItems(agenciesInRegion)}
+                </>
+            )}
+            {otherAgencies.length > 0 && (
+                 <>
+                    {(agenciesInCity.length > 0 || agenciesInRegion.length > 0) && <DropdownMenuSeparator />}
+                    <DropdownMenuLabel>Other Regions</DropdownMenuLabel>
+                    {renderItems(otherAgencies)}
+                 </>
+            )}
+        </SelectContent>
+    );
+  }
+
 
   const handleDownloadTemplate = () => {
     toast({
@@ -935,11 +982,7 @@ export function SitesPageClient() {
                                     <SelectTrigger className="w-[200px] font-medium">
                                         <SelectValue placeholder="Select an agency" />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                        {allAgencies.map(agency => (
-                                            <SelectItem key={agency.id} value={agency.id.toString()}>{agency.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
+                                    {renderAgencySelection(site)}
                                     </Select>
                                     </div>
                                 </TableCell>
