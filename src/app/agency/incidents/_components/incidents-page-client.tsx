@@ -401,7 +401,7 @@ export function IncidentsPageClient() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => fetchIncidents(prevUrl)}
+                            onClick={() => { if (prevUrl) fetchIncidents(prevUrl) }}
                             disabled={!prevUrl || isLoading}
                             className="w-20"
                         >
@@ -411,7 +411,7 @@ export function IncidentsPageClient() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => fetchIncidents(nextUrl)}
+                            onClick={() => { if (nextUrl) fetchIncidents(nextUrl) }}
                             disabled={!nextUrl || isLoading}
                             className="w-20"
                         >
@@ -425,5 +425,3 @@ export function IncidentsPageClient() {
     </div>
   );
 }
-
-    
