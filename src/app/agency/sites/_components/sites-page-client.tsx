@@ -66,6 +66,16 @@ type ApiCity = {
     name: string;
 }
 
+type PatrollingOfficerForAssignment = {
+    id: number;
+    employee_id: string;
+    first_name: string;
+    last_name: string | null;
+    email: string;
+    region: string;
+    city: string;
+};
+
 
 export function SitesPageClient() {
   const { toast } = useToast();
@@ -75,7 +85,7 @@ export function SitesPageClient() {
 
   const [assignedSites, setAssignedSites] = useState<Site[]>([]);
   const [unassignedSites, setUnassignedSites] = useState<Site[]>([]);
-  const [patrollingOfficers, setPatrollingOfficers] = useState<any[]>([]);
+  const [patrollingOfficers, setPatrollingOfficers] = useState<PatrollingOfficerForAssignment[]>([]);
   const [unassignedGuards, setUnassignedGuards] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loggedInOrg, setLoggedInOrg] = useState<Organization | null>(null);
@@ -175,21 +185,8 @@ export function SitesPageClient() {
     if (!loggedInOrg || !token) return;
 
     try {
-        const poResponse = await fetchData<{results: any[]}>(`/agency/security/${loggedInOrg.code}/patrol_officers/list/`, token);
-        const formattedPOs = poResponse?.results.map((po) => ({
-            id: po.id,
-            employee_id: po.employee_id,
-            first_name: po.first_name,
-            last_name: po.last_name,
-            name: `${po.first_name} ${po.last_name || ''}`.trim(),
-            email: po.email,
-            phone: po.phone,
-            avatar: po.profile_picture,
-            city: po.city,
-            sites_assigned_count: po.sites_assigned_count,
-            incidents_count: po.incidents_count,
-        })) || [];
-        setPatrollingOfficers(formattedPOs);
+        const poResponse = await fetchData<PatrollingOfficerForAssignment[]>(`/agency/security/${loggedInOrg.code}/assign_patrol_officer/list/`, token);
+        setPatrollingOfficers(poResponse || []);
 
         const unassignedGuardsResponse = await fetchData<{ results: any[] }>(`/agency/security/${loggedInOrg.code}/unassigned_guards/list/`, token);
         setUnassignedGuards(unassignedGuardsResponse?.results || []);
@@ -435,38 +432,38 @@ export function SitesPageClient() {
   };
 
   const renderPatrollingOfficerSelection = (site: Site) => {
-     const officersInCity = patrollingOfficers.filter(po => po.city === site.city);
-     const officersNotInCity = patrollingOfficers.filter(po => po.city !== site.city);
+    const officersInCity = patrollingOfficers.filter(po => po.city === site.city);
+    const officersNotInCity = patrollingOfficers.filter(po => po.city !== site.city);
 
-     const renderItems = (officerList: any[]) => officerList.map((po) => {
-       const officerName = `${po.name || ''}`.trim();
-       return (
-        <SelectItem
-          key={po.id}
-          value={po.id.toString()}
-          className="font-medium"
-        >
-          {officerName}
-        </SelectItem>
-     )});
+    const renderItems = (officerList: PatrollingOfficerForAssignment[]) => officerList.map((po) => {
+      const officerName = `${po.first_name || ''} ${po.last_name || ''}`.trim();
+      return (
+      <SelectItem
+        key={po.id}
+        value={po.id.toString()}
+        className="font-medium"
+      >
+        {officerName}
+      </SelectItem>
+    )});
 
-     return (
-        <SelectContent>
-            {officersInCity.length > 0 && (
+    return (
+      <SelectContent>
+          {officersInCity.length > 0 && (
+              <>
+                  <DropdownMenuLabel className="text-xs font-normal text-muted-foreground px-2">In {site.city}</DropdownMenuLabel>
+                  {renderItems(officersInCity)}
+              </>
+          )}
+          {officersNotInCity.length > 0 && (
                 <>
-                    <DropdownMenuLabel className="text-xs font-normal text-muted-foreground px-2">In {site.city}</DropdownMenuLabel>
-                    {renderItems(officersInCity)}
+                  {officersInCity.length > 0 && <DropdownMenuSeparator />}
+                  <DropdownMenuLabel className="text-xs font-normal text-muted-foreground px-2">Other Cities</DropdownMenuLabel>
+                  {renderItems(officersNotInCity)}
                 </>
-            )}
-            {officersNotInCity.length > 0 && (
-                 <>
-                    {officersInCity.length > 0 && <DropdownMenuSeparator />}
-                    <DropdownMenuLabel className="text-xs font-normal text-muted-foreground px-2">Other Cities</DropdownMenuLabel>
-                    {renderItems(officersNotInCity)}
-                 </>
-            )}
-        </SelectContent>
-     )
+          )}
+      </SelectContent>
+    )
   }
 
   const renderGuardSelection = (site: Site) => {
@@ -526,7 +523,7 @@ export function SitesPageClient() {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams.toString());
     params.set('tab', tab);
     router.push(`?${params.toString()}`);
   };
