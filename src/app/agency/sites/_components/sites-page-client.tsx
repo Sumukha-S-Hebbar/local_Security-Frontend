@@ -76,6 +76,16 @@ type PatrollingOfficerForAssignment = {
     city: string;
 };
 
+type UnassignedGuard = {
+    id: number;
+    employee_id: string;
+    first_name: string;
+    last_name: string | null;
+    email: string;
+    region: string;
+    city: string;
+};
+
 
 export function SitesPageClient() {
   const { toast } = useToast();
@@ -86,7 +96,7 @@ export function SitesPageClient() {
   const [assignedSites, setAssignedSites] = useState<Site[]>([]);
   const [unassignedSites, setUnassignedSites] = useState<Site[]>([]);
   const [patrollingOfficers, setPatrollingOfficers] = useState<PatrollingOfficerForAssignment[]>([]);
-  const [unassignedGuards, setUnassignedGuards] = useState<any[]>([]);
+  const [unassignedGuards, setUnassignedGuards] = useState<UnassignedGuard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loggedInOrg, setLoggedInOrg] = useState<Organization | null>(null);
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
@@ -188,8 +198,8 @@ export function SitesPageClient() {
         const poResponse = await fetchData<PatrollingOfficerForAssignment[]>(`/agency/security/${loggedInOrg.code}/assign_patrol_officer/list/`, token);
         setPatrollingOfficers(poResponse || []);
 
-        const unassignedGuardsResponse = await fetchData<{ results: any[] }>(`/agency/security/${loggedInOrg.code}/unassigned_guards/list/`, token);
-        setUnassignedGuards(unassignedGuardsResponse?.results || []);
+        const unassignedGuardsResponse = await fetchData<UnassignedGuard[]>(`/agency/security/${loggedInOrg.code}/unassigned_guards/list/`, token);
+        setUnassignedGuards(unassignedGuardsResponse || []);
 
     } catch (error) {
         toast({
@@ -470,7 +480,7 @@ export function SitesPageClient() {
     const guardsInCity = unassignedGuards.filter(g => g.city === site.city);
     const guardsNotInCity = unassignedGuards.filter(g => g.city !== site.city);
 
-    const renderItems = (guardList: any[]) => guardList.map(guard => {
+    const renderItems = (guardList: UnassignedGuard[]) => guardList.map(guard => {
       const guardName = `${guard.first_name} ${guard.last_name || ''}`.trim();
       const isSelected = (assignment[site.id.toString()]?.guardIds || []).includes(guard.id.toString());
       return (
