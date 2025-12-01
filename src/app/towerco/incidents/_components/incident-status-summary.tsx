@@ -29,8 +29,7 @@ export function IncidentStatusSummary({
       count: counts.sos_count,
       label: 'SOS',
       icon: Siren,
-      color: 'text-[#FF0000]',
-      bg: 'bg-[#FF0000]/10',
+      className: 'bg-[#FF0000] text-white',
       ring: 'ring-[#FF0000]'
     },
     {
@@ -38,8 +37,7 @@ export function IncidentStatusSummary({
       count: counts.active_incidents_count,
       label: 'Active',
       icon: ShieldAlert,
-      color: 'text-orange-500',
-      bg: 'bg-orange-500/10',
+      className: 'bg-orange-500 text-white',
       ring: 'ring-orange-500'
     },
     {
@@ -47,8 +45,7 @@ export function IncidentStatusSummary({
       count: counts.under_review_incidents_count,
       label: 'Under Review',
       icon: ShieldQuestion,
-      color: 'text-[#FFC107]',
-      bg: 'bg-[#FFC107]/10',
+      className: 'bg-[#FFC107] text-white',
       ring: 'ring-[#FFC107]'
     },
     {
@@ -56,8 +53,7 @@ export function IncidentStatusSummary({
       count: counts.resolved_incidents_count,
       label: 'Resolved',
       icon: CheckCircle2,
-      color: 'text-chart-2',
-      bg: 'bg-chart-2/10',
+      className: 'bg-chart-2 text-white',
       ring: 'ring-chart-2'
     }
   ] as const;
@@ -70,16 +66,16 @@ export function IncidentStatusSummary({
             key={item.status}
             className={cn(
                 'flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all',
-                item.bg,
-                selectedStatus === item.status ? `ring-2 ${item.ring} shadow-md` : 'hover:bg-muted/80'
+                item.className,
+                selectedStatus === item.status ? `ring-2 ${item.ring} shadow-md` : 'hover:opacity-90'
             )}
             onClick={() => onStatusSelect(item.status)}
             role="button"
             tabIndex={0}
             >
-                <item.icon className={cn('h-8 w-8', item.color)} />
+                <item.icon className="h-8 w-8" />
                 <div>
-                    <p className={cn('text-sm font-semibold', item.color)}>{item.label}</p>
+                    <p className="text-sm font-semibold">{item.label}</p>
                     <p className="text-2xl font-bold">{item.count}</p>
                 </div>
             </div>
