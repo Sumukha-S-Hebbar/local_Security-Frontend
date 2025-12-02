@@ -202,8 +202,9 @@ export function SitesPageClient() {
     let fetchUrl = url;
 
     if (!fetchUrl) {
+        const apiStatus = status.charAt(0).toUpperCase() + status.slice(1);
         const params = new URLSearchParams({
-            site_status: status,
+            site_status: apiStatus,
         });
 
         if (status === 'Assigned') {
