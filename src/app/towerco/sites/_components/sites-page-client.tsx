@@ -209,7 +209,7 @@ export function SitesPageClient() {
             if (assignedSearchQuery) params.append('search', assignedSearchQuery);
             if (assignedSelectedRegion !== 'all') params.append('region', assignedSelectedRegion);
             if (assignedSelectedCity !== 'all') params.append('city', assignedSelectedCity);
-        } else {
+        } else { // Unassigned
             if (unassignedSearchQuery) params.append('search', unassignedSearchQuery);
             if (unassignedSelectedRegion !== 'all') params.append('region', unassignedSelectedRegion);
             if (unassignedSelectedCity !== 'all') params.append('city', unassignedSelectedCity);
@@ -306,22 +306,12 @@ export function SitesPageClient() {
     }
   }, [loggedInOrg, token, fetchAgencies]);
   
-  useEffect(() => {
+    useEffect(() => {
     if (loggedInOrg) {
       const currentTab = activeTab as 'assigned' | 'unassigned';
       fetchSites(currentTab === 'assigned' ? 'Assigned' : 'Unassigned');
     }
-  }, [
-    loggedInOrg,
-    token,
-    activeTab,
-    assignedSearchQuery,
-    assignedSelectedRegion,
-    assignedSelectedCity,
-    unassignedSearchQuery,
-    unassignedSelectedRegion,
-    unassignedSelectedCity,
-  ]);
+  }, [loggedInOrg, token, activeTab, fetchSites, assignedSearchQuery, assignedSelectedRegion, assignedSelectedCity, unassignedSearchQuery, unassignedSelectedRegion, unassignedSelectedCity]);
 
 
   useEffect(() => {
@@ -1024,7 +1014,7 @@ export function SitesPageClient() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => fetchSites(activeTab as 'Assigned' | 'Unassigned', activeTab === 'assigned' ? assignedPrevUrl : unassignedPrevUrl)}
+                            onClick={() => fetchSites(activeTab as 'Assigned' | 'Unassigned', (activeTab === 'assigned' ? assignedPrevUrl : unassignedPrevUrl) ?? undefined)}
                             disabled={isLoading || (activeTab === 'assigned' ? !assignedPrevUrl : !unassignedPrevUrl)}
                             className="w-20"
                         >
@@ -1036,7 +1026,7 @@ export function SitesPageClient() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => fetchSites(activeTab as 'Assigned' | 'Unassigned', activeTab === 'assigned' ? assignedNextUrl : unassignedNextUrl)}
+                            onClick={() => fetchSites(activeTab as 'Assigned' | 'Unassigned', (activeTab === 'assigned' ? assignedNextUrl : unassignedNextUrl) ?? undefined)}
                             disabled={isLoading || (activeTab === 'assigned' ? !assignedNextUrl : !unassignedNextUrl)}
                             className="w-20"
                         >
