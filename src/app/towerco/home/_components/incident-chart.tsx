@@ -40,7 +40,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList, LineChart, Line, ResponsiveContainer } from 'recharts';
 import { useRouter } from 'next/navigation';
-import type { IncidentListItem, AgencyPerformanceData, IncidentTrendData } from '../page';
+import type { IncidentListItem, IncidentTrendData } from '../page';
 import { Loader2 } from 'lucide-react';
 import { Organization } from '@/types';
 import { fetchData } from '@/lib/api';
@@ -72,22 +72,25 @@ type PaginatedIncidentsResponse = {
     results: IncidentListItem[];
 };
 
+type AgencyForFilter = {
+  id: number;
+  name: string;
+}
+
 type DashboardData = {
     incident_trend: IncidentTrendData[];
-    agency_performance: AgencyPerformanceData[];
 }
 
 export function IncidentChart({
     incidentTrend,
-    agencies,
     orgCode
 }: {
     incidentTrend: IncidentTrendData[];
-    agencies: AgencyPerformanceData[];
     orgCode: string;
 }) {
   const router = useRouter();
   
+  const [agencies, setAgencies] = useState<AgencyForFilter[]>([]);
   const [selectedAgency, setSelectedAgency] = useState<string>('all');
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
 
@@ -97,7 +100,11 @@ export function IncidentChart({
   
   const [incidentsInSelectedMonth, setIncidentsInSelectedMonth] = useState<IncidentListItem[]>([]);
   const [isDetailsLoading, setIsDetailsLoading] = useState(false);
+  const [isChartLoading, setIsChartLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  
+  const [currentIncidentTrend, setCurrentIncidentTrend] = useState(incidentTrend);
+
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -109,8 +116,50 @@ export function IncidentChart({
     }
   }, []);
 
-  // This should now be a derived state from props
-  const [currentIncidentTrend, setCurrentIncidentTrend] = useState(incidentTrend);
+  useEffect(() => {
+    if (!orgCode || !token) return;
+    const fetchAgencies = async () => {
+      const url = `/org/security/${orgCode}/assign_agency/list/`;
+      try {
+        const data = await fetchData<AgencyForFilter[]>(url, token);
+        setAgencies(data || []);
+      } catch (error) {
+        console.error("Failed to fetch agencies for filter", error);
+      }
+    };
+    fetchAgencies();
+  }, [orgCode, token]);
+
+  useEffect(() => {
+    if (!orgCode || !token) return;
+
+    const fetchChartData = async () => {
+        setIsChartLoading(true);
+        const params = new URLSearchParams();
+        if (selectedAgency !== 'all') {
+            params.append('agency_name', selectedAgency);
+        }
+        if (selectedYear !== 'all') {
+            params.append('year', selectedYear);
+        }
+
+        const url = `/org/security/${orgCode}/security-dashboard/?${params.toString()}`;
+
+        try {
+            const data = await fetchData<DashboardData>(url, token);
+            setCurrentIncidentTrend(data?.incident_trend || []);
+        } catch(error) {
+            console.error("Failed to fetch incident trend data", error);
+            setCurrentIncidentTrend([]);
+        } finally {
+            setIsChartLoading(false);
+        }
+    };
+
+    fetchChartData();
+
+  }, [selectedAgency, selectedYear, orgCode, token]);
+
 
   const monthlyIncidentData = useMemo(() => {
     return currentIncidentTrend.map(monthData => ({
@@ -236,8 +285,8 @@ export function IncidentChart({
                 <SelectContent>
                 <SelectItem value="all" className="font-medium">All Agencies</SelectItem>
                  {agencies.map(agency => (
-                    <SelectItem key={agency.agency_name} value={agency.agency_name} className="font-medium">
-                        {agency.agency_name}
+                    <SelectItem key={agency.id} value={agency.name} className="font-medium">
+                        {agency.name}
                     </SelectItem>
                 ))}
                 </SelectContent>
@@ -256,6 +305,7 @@ export function IncidentChart({
         </div>
       </CardHeader>
       <CardContent className="pt-4">
+        {isChartLoading ? <div className="flex justify-center items-center h-[300px]"><Skeleton className="h-full w-full" /></div> :
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
           <ResponsiveContainer>
             <BarChart 
@@ -348,6 +398,7 @@ export function IncidentChart({
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
+        }
       </CardContent>
 
       <Collapsible open={selectedMonthIndex !== null}>
