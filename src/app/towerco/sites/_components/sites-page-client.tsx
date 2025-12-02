@@ -198,9 +198,9 @@ export function SitesPageClient() {
     setIsLoading(true);
     
     let fetchUrl = url;
+    const apiStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 
     if (!fetchUrl) {
-        const apiStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
         const params = new URLSearchParams({
             site_status: apiStatus,
         });
@@ -308,13 +308,21 @@ export function SitesPageClient() {
   
   useEffect(() => {
     if (loggedInOrg) {
-        fetchSites(activeTab === 'assigned' ? 'Assigned' : 'Unassigned');
+      const currentTab = activeTab as 'assigned' | 'unassigned';
+      fetchSites(currentTab === 'assigned' ? 'Assigned' : 'Unassigned');
     }
-  }, [loggedInOrg, activeTab]);
+  }, [
+    loggedInOrg,
+    token,
+    activeTab,
+    assignedSearchQuery,
+    assignedSelectedRegion,
+    assignedSelectedCity,
+    unassignedSearchQuery,
+    unassignedSelectedRegion,
+    unassignedSelectedCity,
+  ]);
 
-  useEffect(() => {
-      fetchSites(activeTab as 'Assigned' | 'Unassigned');
-  }, [assignedSearchQuery, assignedSelectedRegion, assignedSelectedCity, unassignedSearchQuery, unassignedSelectedRegion, unassignedSelectedCity, fetchSites, activeTab]);
 
   useEffect(() => {
       async function fetchRegionsForForm() {
