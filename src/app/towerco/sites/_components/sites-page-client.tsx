@@ -202,39 +202,42 @@ export function SitesPageClient() {
     let fetchUrl = url;
 
     if (!fetchUrl) {
-      const params = new URLSearchParams({
-          site_status: status,
-          page_size: ITEMS_PER_PAGE.toString(),
-      });
+        const params = new URLSearchParams({
+            site_status: status,
+        });
 
-      if (status === 'Assigned') {
-          if (assignedSearchQuery) params.append('search', assignedSearchQuery);
-          if (assignedSelectedRegion !== 'all') params.append('region', assignedSelectedRegion);
-          if (assignedSelectedCity !== 'all') params.append('city', assignedSelectedCity);
-      } else {
-          if (unassignedSearchQuery) params.append('search', unassignedSearchQuery);
-          if (unassignedSelectedRegion !== 'all') params.append('region', unassignedSelectedRegion);
-          if (unassignedSelectedCity !== 'all') params.append('city', unassignedSelectedCity);
-      }
-      fetchUrl = `/org/security/${loggedInOrg.code}/sites/list/?${params.toString()}`;
+        if (status === 'Assigned') {
+            if (assignedSearchQuery) params.append('search', assignedSearchQuery);
+            if (assignedSelectedRegion !== 'all') params.append('region', assignedSelectedRegion);
+            if (assignedSelectedCity !== 'all') params.append('city', assignedSelectedCity);
+        } else {
+            if (unassignedSearchQuery) params.append('search', unassignedSearchQuery);
+            if (unassignedSelectedRegion !== 'all') params.append('region', unassignedSelectedRegion);
+            if (unassignedSelectedCity !== 'all') params.append('city', unassignedSelectedCity);
+        }
+        fetchUrl = `/org/security/${loggedInOrg.code}/sites/list/?${params.toString()}`;
     }
 
     try {
         const response = await fetchData<PaginatedSitesResponse>(fetchUrl, token);
-        const page = new URL(fetchUrl, getApiBaseUrl()).searchParams.get('page');
+        const pageFromUrl = new URL(fetchUrl, getApiBaseUrl()).searchParams;
+        const offset = pageFromUrl.get('offset');
+        const limit = pageFromUrl.get('limit') || ITEMS_PER_PAGE.toString();
+        const currentPageNumber = offset ? Math.floor(parseInt(offset) / parseInt(limit)) + 1 : 1;
+        
 
         if (status === 'Assigned') {
             setAssignedSites(response?.results || []);
             setAssignedSitesCount(response?.count || 0);
             setAssignedNextUrl(response?.next || null);
             setAssignedPrevUrl(response?.previous || null);
-            setAssignedCurrentPage(page ? parseInt(page) : 1);
+            setAssignedCurrentPage(currentPageNumber);
         } else {
             setUnassignedSites(response?.results || []);
             setUnassignedSitesCount(response?.count || 0);
             setUnassignedNextUrl(response?.next || null);
             setUnassignedPrevUrl(response?.previous || null);
-            setUnassignedCurrentPage(page ? parseInt(page) : 1);
+            setUnassignedCurrentPage(currentPageNumber);
         }
     } catch (error) {
         toast({
@@ -1003,7 +1006,7 @@ export function SitesPageClient() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => fetchSites(activeTab as 'Assigned' | 'Unassigned', activeTab === 'assigned' ? assignedPrevUrl! : unassignedPrevUrl!)}
+                            onClick={() => fetchSites(activeTab as 'Assigned' | 'Unassigned', activeTab === 'assigned' ? assignedPrevUrl : unassignedPrevUrl)}
                             disabled={isLoading || (activeTab === 'assigned' ? !assignedPrevUrl : !unassignedPrevUrl)}
                             className="w-20"
                         >
@@ -1015,7 +1018,7 @@ export function SitesPageClient() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => fetchSites(activeTab as 'Assigned' | 'Unassigned', activeTab === 'assigned' ? assignedNextUrl! : unassignedNextUrl!)}
+                            onClick={() => fetchSites(activeTab as 'Assigned' | 'Unassigned', activeTab === 'assigned' ? assignedNextUrl : unassignedNextUrl)}
                             disabled={isLoading || (activeTab === 'assigned' ? !assignedNextUrl : !unassignedNextUrl)}
                             className="w-20"
                         >
