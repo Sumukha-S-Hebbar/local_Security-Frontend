@@ -51,7 +51,7 @@ export function TowercoAnalyticsDashboard({
         count: counts.total_patrol_officers_count,
         description: 'Team leaders managing guards',
         icon: UserCheck,
-        href: '/towerco/patrolling-officers',
+        href: '#',
         color: 'text-black',
         bg: 'bg-[#00b4d8]',
         ring: 'ring-cyan-600'
@@ -62,7 +62,7 @@ export function TowercoAnalyticsDashboard({
         count: counts.total_guards_count,
         description: 'Personnel across all agencies',
         icon: Users,
-        href: '#', // TBD
+        href: '#',
         color: 'text-white',
         bg: 'bg-[#1b2a41]',
         ring: 'ring-blue-600'
@@ -84,7 +84,7 @@ export function TowercoAnalyticsDashboard({
               key={item.key}
               onClick={() => item.href !== '#' && router.push(item.href)}
               role="button"
-              tabIndex={0}
+              tabIndex={item.href !== '#' ? 0 : -1}
               className={cn(
                 'flex items-center gap-4 rounded-lg p-4 transition-all hover:shadow-md',
                 item.bg,
