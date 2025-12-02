@@ -9,6 +9,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
 import {
   Select,
@@ -98,7 +99,7 @@ export function IncidentChart({
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
   const collapsibleRef = useRef<HTMLDivElement>(null);
   
-  const [incidentsInSelectedMonth, setIncidentsInSelectedMonth] = useState<IncidentListItem[]>([]);
+  const [paginatedIncidentsInMonth, setPaginatedIncidentsInMonth] = useState<PaginatedIncidentsResponse | null>(null);
   const [isDetailsLoading, setIsDetailsLoading] = useState(false);
   const [isChartLoading, setIsChartLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
@@ -177,39 +178,42 @@ export function IncidentChart({
     return Array.from({ length: 5 }, (_, i) => (currentYear - i).toString());
   }, []);
 
-  const fetchMonthIncidents = useCallback(async (monthIndex: number) => {
+  const fetchMonthIncidents = useCallback(async (monthIndex: number, url?: string) => {
     if (!orgCode || !token) return;
     setIsDetailsLoading(true);
 
-    const month = monthIndex + 1;
-    
-    const params = new URLSearchParams({
-        year: selectedYear,
-        month: month.toString(),
-    });
+    let fetchUrl = url;
 
-    if (selectedAgency !== 'all') {
-      params.append('agency_name', selectedAgency);
+    if (!fetchUrl) {
+        const month = monthIndex + 1;
+        const params = new URLSearchParams({
+            year: selectedYear,
+            month: month.toString(),
+        });
+
+        if (selectedAgency !== 'all') {
+            params.append('agency_name', selectedAgency);
+        }
+        fetchUrl = `/org/security/${orgCode}/incidents/list/?${params.toString()}`;
     }
-    
-    const url = `/org/security/${orgCode}/incidents/list/?${params.toString()}`;
 
     try {
-        const data = await fetchData<PaginatedIncidentsResponse>(url, token);
-        setIncidentsInSelectedMonth(data?.results || []);
+        const data = await fetchData<PaginatedIncidentsResponse>(fetchUrl, token);
+        setPaginatedIncidentsInMonth(data || null);
     } catch(e) {
         console.error("Failed to fetch incidents for month", e);
-        setIncidentsInSelectedMonth([]);
+        setPaginatedIncidentsInMonth(null);
     } finally {
         setIsDetailsLoading(false);
     }
   }, [orgCode, selectedYear, selectedAgency, token]);
 
+
   const handleBarClick = useCallback((data: any, index: number) => {
     const monthIndex = index;
     if (selectedMonthIndex === monthIndex) {
       setSelectedMonthIndex(null);
-      setIncidentsInSelectedMonth([]);
+      setPaginatedIncidentsInMonth(null);
     } else {
       setSelectedMonthIndex(monthIndex);
       fetchMonthIncidents(monthIndex);
@@ -413,7 +417,7 @@ export function IncidentChart({
                     <div className="flex justify-center items-center h-24">
                         <Loader2 className="h-6 w-6 animate-spin" />
                     </div>
-                ) : incidentsInSelectedMonth.length > 0 ? (
+                ) : paginatedIncidentsInMonth && paginatedIncidentsInMonth.results.length > 0 ? (
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -425,7 +429,7 @@ export function IncidentChart({
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {incidentsInSelectedMonth.map(incident => (
+                            {paginatedIncidentsInMonth.results.map(incident => (
                                 <TableRow 
                                   key={incident.id}
                                   onClick={() => router.push(`/towerco/incidents/${incident.id}`)}
@@ -448,6 +452,43 @@ export function IncidentChart({
                     <p className="text-sm text-muted-foreground text-center">No incidents recorded for this month.</p>
                 )}
             </CardContent>
+            {paginatedIncidentsInMonth && paginatedIncidentsInMonth.count > 0 && !isDetailsLoading && (
+                <CardFooter>
+                    <div className="flex items-center justify-between w-full">
+                    <div className="text-sm text-muted-foreground font-medium">
+                        Showing {paginatedIncidentsInMonth.results.length} of {paginatedIncidentsInMonth.count} incidents.
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                                if (paginatedIncidentsInMonth.previous && selectedMonthIndex !== null) {
+                                    fetchMonthIncidents(selectedMonthIndex, paginatedIncidentsInMonth.previous);
+                                }
+                            }}
+                            disabled={!paginatedIncidentsInMonth.previous || isDetailsLoading}
+                            className="w-20"
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                                if (paginatedIncidentsInMonth.next && selectedMonthIndex !== null) {
+                                    fetchMonthIncidents(selectedMonthIndex, paginatedIncidentsInMonth.next);
+                                }
+                            }}
+                            disabled={!paginatedIncidentsInMonth.next || isDetailsLoading}
+                            className="w-20"
+                        >
+                            Next
+                        </Button>
+                    </div>
+                    </div>
+                </CardFooter>
+            )}
         </CollapsibleContent>
       </Collapsible>
     </Card>
