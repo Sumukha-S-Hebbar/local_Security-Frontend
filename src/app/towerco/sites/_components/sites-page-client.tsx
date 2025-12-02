@@ -200,7 +200,7 @@ export function SitesPageClient() {
     let fetchUrl = url;
 
     if (!fetchUrl) {
-        const apiStatus = status;
+        const apiStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
         const params = new URLSearchParams({
             site_status: apiStatus,
         });
@@ -308,7 +308,7 @@ export function SitesPageClient() {
   
   useEffect(() => {
     if (loggedInOrg) {
-        fetchSites(activeTab as 'Assigned' | 'Unassigned');
+        fetchSites(activeTab === 'assigned' ? 'Assigned' : 'Unassigned');
     }
   }, [loggedInOrg, activeTab]);
 
