@@ -222,12 +222,9 @@ export function SitesPageClient() {
     try {
         const response = await fetchData<PaginatedSitesResponse>(fetchUrl, token);
         const pageFromUrl = new URL(fetchUrl, getApiBaseUrl()).searchParams;
-        const offset = pageFromUrl.get('offset');
-        const limit = pageFromUrl.get('limit') || ITEMS_PER_PAGE.toString();
-        const currentPageNumber = offset ? Math.floor(parseInt(offset) / parseInt(limit)) + 1 : 1;
+        const currentPageNumber = pageFromUrl.get('page') ? parseInt(pageFromUrl.get('page')!, 10) : 1;
         
-
-        if (status === 'Assigned') {
+        if (activeTab === 'assigned') {
             setAssignedSites(response?.results || []);
             setAssignedSitesCount(response?.count || 0);
             setAssignedNextUrl(response?.next || null);
@@ -249,7 +246,7 @@ export function SitesPageClient() {
     } finally {
         setIsLoading(false);
     }
-  }, [loggedInOrg, token, toast, assignedSearchQuery, assignedSelectedRegion, assignedSelectedCity, unassignedSearchQuery, unassignedSelectedRegion, unassignedSelectedCity]);
+  }, [loggedInOrg, token, toast, activeTab, assignedSearchQuery, assignedSelectedRegion, assignedSelectedCity, unassignedSearchQuery, unassignedSelectedRegion, unassignedSelectedCity]);
 
     useEffect(() => {
         async function fetchFilterRegions() {
