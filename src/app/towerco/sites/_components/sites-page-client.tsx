@@ -100,8 +100,6 @@ type AgencyForAssignment = {
   city: string;
 }
 
-const ITEMS_PER_PAGE = 10;
-
 export function SitesPageClient() {
   const { toast } = useToast();
   const router = useRouter();
@@ -202,7 +200,7 @@ export function SitesPageClient() {
     let fetchUrl = url;
 
     if (!fetchUrl) {
-        const apiStatus = status.charAt(0).toUpperCase() + status.slice(1);
+        const apiStatus = status;
         const params = new URLSearchParams({
             site_status: apiStatus,
         });
@@ -224,7 +222,7 @@ export function SitesPageClient() {
         const pageFromUrl = new URL(fetchUrl, getApiBaseUrl()).searchParams;
         const currentPageNumber = pageFromUrl.get('page') ? parseInt(pageFromUrl.get('page')!, 10) : 1;
         
-        if (activeTab === 'assigned') {
+        if (status === 'Assigned') {
             setAssignedSites(response?.results || []);
             setAssignedSitesCount(response?.count || 0);
             setAssignedNextUrl(response?.next || null);
@@ -246,7 +244,17 @@ export function SitesPageClient() {
     } finally {
         setIsLoading(false);
     }
-  }, [loggedInOrg, token, toast, activeTab, assignedSearchQuery, assignedSelectedRegion, assignedSelectedCity, unassignedSearchQuery, unassignedSelectedRegion, unassignedSelectedCity]);
+  }, [
+    loggedInOrg, 
+    token, 
+    toast, 
+    assignedSearchQuery, 
+    assignedSelectedRegion, 
+    assignedSelectedCity, 
+    unassignedSearchQuery, 
+    unassignedSelectedRegion, 
+    unassignedSelectedCity
+  ]);
 
     useEffect(() => {
         async function fetchFilterRegions() {
@@ -302,7 +310,11 @@ export function SitesPageClient() {
     if (loggedInOrg) {
         fetchSites(activeTab as 'Assigned' | 'Unassigned');
     }
-  }, [loggedInOrg, activeTab, fetchSites, assignedSearchQuery, assignedSelectedRegion, assignedSelectedCity, unassignedSearchQuery, unassignedSelectedRegion, unassignedSelectedCity]);
+  }, [loggedInOrg, activeTab]);
+
+  useEffect(() => {
+      fetchSites(activeTab as 'Assigned' | 'Unassigned');
+  }, [assignedSearchQuery, assignedSelectedRegion, assignedSelectedCity, unassignedSearchQuery, unassignedSelectedRegion, unassignedSelectedCity, fetchSites, activeTab]);
 
   useEffect(() => {
       async function fetchRegionsForForm() {
@@ -561,8 +573,8 @@ export function SitesPageClient() {
     });
   }
   
-  const assignedTotalPages = Math.ceil(assignedSitesCount / ITEMS_PER_PAGE);
-  const unassignedTotalPages = Math.ceil(unassignedSitesCount / ITEMS_PER_PAGE);
+  const assignedTotalPages = Math.ceil(assignedSitesCount / 10);
+  const unassignedTotalPages = Math.ceil(unassignedSitesCount / 10);
   
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
