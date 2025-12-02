@@ -58,7 +58,6 @@ type PaginatedGuardsResponse = {
     results: Guard[];
 };
 
-const ITEMS_PER_PAGE = 10;
 
 const uploadFormSchema = z.object({
   excelFile: z
@@ -126,8 +125,7 @@ export default function AgencyGuardsPage() {
   const [checkedInGuards, setCheckedInGuards] = useState<Guard[]>([]);
   const [checkedOutGuards, setCheckedOutGuards] = useState<Guard[]>([]);
   const [unassignedGuards, setUnassignedGuards] = useState<Guard[]>([]);
-  const [sites, setSites] = useState<Site[]>([]);
-  const [patrollingOfficers, setPatrollingOfficers] = useState<PatrollingOfficer[]>([]);
+  
   const [isLoading, setIsLoading] = useState(true);
   const [loggedInOrg, setLoggedInOrg] = useState<Organization | null>(null);
   const [countryId, setCountryId] = useState<number | null>(null);
@@ -141,13 +139,13 @@ export default function AgencyGuardsPage() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('checked-in');
+  
+  const [pagination, setPagination] = useState<{ [key: string]: { count: number; next: string | null; previous: string | null; currentPage: number; totalPages: number; } }>({
+    'checked-in': { count: 0, next: null, previous: null, currentPage: 1, totalPages: 1 },
+    'checked-out': { count: 0, next: null, previous: null, currentPage: 1, totalPages: 1 },
+    'unassigned': { count: 0, next: null, previous: null, currentPage: 1, totalPages: 1 },
+  });
 
-  const [checkedInCount, setCheckedInCount] = useState(0);
-  const [checkedOutCount, setCheckedOutCount] = useState(0);
-  const [unassignedCount, setUnassignedCount] = useState(0);
-  const [checkedInCurrentPage, setCheckedInCurrentPage] = useState(1);
-  const [checkedOutCurrentPage, setCheckedOutCurrentPage] = useState(1);
-  const [unassignedCurrentPage, setUnassignedCurrentPage] = useState(1);
 
   const [apiRegions, setApiRegions] = useState<ApiRegion[]>([]);
   const [apiCities, setApiCities] = useState<ApiCity[]>([]);
@@ -165,45 +163,63 @@ export default function AgencyGuardsPage() {
     }
   }, []);
 
-  const fetchGuards = useCallback(async (status: 'checked-in' | 'checked-out' | 'unassigned', page: number) => {
+  const fetchGuards = useCallback(async (status: 'checked-in' | 'checked-out' | 'unassigned', url?: string) => {
     if (!loggedInOrg || !token) return;
     setIsLoading(true);
     
     const orgCode = loggedInOrg.code;
     
-    let checkInStatus = '';
-    switch(status) {
-        case 'checked-in':
-            checkInStatus = 'checked_in';
-            break;
-        case 'checked-out':
-            checkInStatus = 'checked_out';
-            break;
-        case 'unassigned':
-            checkInStatus = 'unassigned';
-            break;
-    }
-    
-    const params = new URLSearchParams({
-        page: page.toString(),
-        page_size: ITEMS_PER_PAGE.toString(),
-    });
-    if (searchQuery) params.append('search', searchQuery);
+    let fetchUrl = url;
+    if (!fetchUrl) {
+        let checkInStatus = '';
+        switch(status) {
+            case 'checked-in':
+                checkInStatus = 'checked_in';
+                break;
+            case 'checked-out':
+                checkInStatus = 'checked_out';
+                break;
+            case 'unassigned':
+                checkInStatus = 'unassigned';
+                break;
+        }
+        
+        const params = new URLSearchParams();
+        if (searchQuery) params.append('search', searchQuery);
 
-    const url = `/agency/security/${orgCode}/guards/list/?check_in_status=${checkInStatus}&${params.toString()}`;
+        fetchUrl = `/agency/security/${orgCode}/guards/list/?check_in_status=${checkInStatus}&${params.toString()}`;
+    }
+
 
     try {
-        const response = await fetchData<PaginatedGuardsResponse>(url, token);
+        const response = await fetchData<PaginatedGuardsResponse>(fetchUrl, token);
+        const results = response?.results || [];
+        const count = response?.count || 0;
+        
         if (status === 'checked-in') {
-            setCheckedInGuards(response?.results || []);
-            setCheckedInCount(response?.count || 0);
+            setCheckedInGuards(results);
         } else if (status === 'checked-out') {
-            setCheckedOutGuards(response?.results || []);
-            setCheckedOutCount(response?.count || 0);
+            setCheckedOutGuards(results);
         } else {
-            setUnassignedGuards(response?.results || []);
-            setUnassignedCount(response?.count || 0);
+            setUnassignedGuards(results);
         }
+
+        const urlObject = new URL(fetchUrl, getApiBaseUrl());
+        const pageParam = urlObject.searchParams.get('page');
+        const currentPage = pageParam ? parseInt(pageParam) : 1;
+        const itemsPerPage = 10; // Assuming this is fixed or coming from API config
+
+        setPagination(prev => ({
+            ...prev,
+            [status]: {
+                count: count,
+                next: response?.next || null,
+                previous: response?.previous || null,
+                currentPage: currentPage,
+                totalPages: Math.ceil(count / itemsPerPage),
+            }
+        }));
+
     } catch (error) {
         toast({ variant: 'destructive', title: 'Error', description: `Failed to load ${status.replace('-', ' ')} guards.` });
     } finally {
@@ -214,46 +230,12 @@ export default function AgencyGuardsPage() {
 
   useEffect(() => {
     if (loggedInOrg && token) {
-      if (activeTab === 'checked-in') {
-        fetchGuards('checked-in', checkedInCurrentPage);
-      } else if (activeTab === 'checked-out') {
-        fetchGuards('checked-out', checkedOutCurrentPage);
-      } else {
-        fetchGuards('unassigned', unassignedCurrentPage);
-      }
+      fetchGuards(activeTab as 'checked-in' | 'checked-out' | 'unassigned');
     }
-  }, [loggedInOrg, token, fetchGuards, activeTab, checkedInCurrentPage, checkedOutCurrentPage, unassignedCurrentPage]);
+  }, [loggedInOrg, token, activeTab, searchQuery, fetchGuards]);
   
-  useEffect(() => {
-      setCheckedInCurrentPage(1);
-      setCheckedOutCurrentPage(1);
-      setUnassignedCurrentPage(1);
-      if (loggedInOrg) {
-        if (activeTab === 'checked-in') {
-            fetchGuards('checked-in', 1);
-        } else if (activeTab === 'checked-out'){
-            fetchGuards('checked-out', 1);
-        } else {
-            fetchGuards('unassigned', 1);
-        }
-      }
-  }, [searchQuery, loggedInOrg, fetchGuards, activeTab]);
 
-    const handlePagination = (direction: 'next' | 'prev') => {
-        if (activeTab === 'checked-in') {
-            setCheckedInCurrentPage(prev => direction === 'next' ? prev + 1 : prev - 1);
-        } else if (activeTab === 'checked-out') {
-            setCheckedOutCurrentPage(prev => direction === 'next' ? prev + 1 : prev - 1);
-        } else {
-            setUnassignedCurrentPage(prev => direction === 'next' ? prev + 1 : prev - 1);
-        }
-    };
-    
-    const totalCheckedInPages = Math.ceil(checkedInCount / ITEMS_PER_PAGE);
-    const totalCheckedOutPages = Math.ceil(checkedOutCount / ITEMS_PER_PAGE);
-    const totalUnassignedPages = Math.ceil(unassignedCount / ITEMS_PER_PAGE);
-
-  const uploadForm = useForm<z.infer<typeof uploadFormSchema>>({
+    const uploadForm = useForm<z.infer<typeof uploadFormSchema>>({
     resolver: zodResolver(uploadFormSchema),
   });
   
@@ -375,7 +357,7 @@ export default function AgencyGuardsPage() {
         addGuardForm.reset();
         setIsAdding(false);
         setIsAddDialogOpen(false);
-        await fetchGuards(activeTab as 'checked-in' | 'checked-out' | 'unassigned', 1);
+        await fetchGuards(activeTab as 'checked-in' | 'checked-out' | 'unassigned');
 
     } catch(error: any) {
          toast({
@@ -440,6 +422,9 @@ export default function AgencyGuardsPage() {
       setIsRequestingSelfie(false);
     }
   };
+
+  const currentPagination = pagination[activeTab];
+  const currentGuards = activeTab === 'checked-in' ? checkedInGuards : activeTab === 'checked-out' ? checkedOutGuards : unassignedGuards;
 
 
   return (
@@ -683,8 +668,8 @@ export default function AgencyGuardsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {checkedInGuards.length > 0 ? (
-                        checkedInGuards.map((guard) => {
+                      {currentGuards.length > 0 ? (
+                        currentGuards.map((guard) => {
                           const guardName = `${guard.first_name} ${guard.last_name || ''}`.trim();
                           const poName = guard.patrolling_officer ? `${guard.patrolling_officer.first_name} ${guard.patrolling_officer.last_name || ''}`.trim() : 'Unassigned';
                           
@@ -764,8 +749,8 @@ export default function AgencyGuardsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {checkedOutGuards.length > 0 ? (
-                        checkedOutGuards.map((guard) => {
+                      {currentGuards.length > 0 ? (
+                        currentGuards.map((guard) => {
                           const guardName = `${guard.first_name} ${guard.last_name || ''}`.trim();
                           const poName = guard.patrolling_officer ? `${guard.patrolling_officer.first_name} ${guard.patrolling_officer.last_name || ''}`.trim() : 'Unassigned';
                           
@@ -843,8 +828,8 @@ export default function AgencyGuardsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {unassignedGuards.length > 0 ? (
-                        unassignedGuards.map((guard) => {
+                      {currentGuards.length > 0 ? (
+                        currentGuards.map((guard) => {
                           const guardName = `${guard.first_name} ${guard.last_name || ''}`.trim();
                           return (
                             <TableRow
@@ -894,30 +879,30 @@ export default function AgencyGuardsPage() {
             </Tabs>
             )}
           </CardContent>
-          {(activeTab === 'checked-in' && checkedInCount > 0) || (activeTab === 'checked-out' && checkedOutCount > 0) || (activeTab === 'unassigned' && unassignedCount > 0) ? (
+          {currentPagination && currentPagination.count > 0 ? (
             <CardFooter>
                 <div className="flex items-center justify-between w-full">
                     <div className="text-sm text-muted-foreground font-medium">
-                        Showing {activeTab === 'checked-in' ? checkedInGuards.length : activeTab === 'checked-out' ? checkedOutGuards.length : unassignedGuards.length} of {activeTab === 'checked-in' ? checkedInCount : activeTab === 'checked-out' ? checkedOutCount : unassignedCount} guards.
+                        Showing {currentGuards.length} of {currentPagination.count} guards.
                     </div>
                     <div className="flex items-center gap-2">
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handlePagination('prev')}
-                            disabled={isLoading || (activeTab === 'checked-in' ? checkedInCurrentPage === 1 : activeTab === 'checked-out' ? checkedOutCurrentPage === 1 : unassignedCurrentPage === 1)}
+                            onClick={() => fetchGuards(activeTab as 'checked-in'|'checked-out'|'unassigned', currentPagination.previous ?? undefined)}
+                            disabled={isLoading || !currentPagination.previous}
                             className="w-20"
                         >
                             Previous
                         </Button>
                         <span className="text-sm font-medium">
-                            Page {activeTab === 'checked-in' ? checkedInCurrentPage : activeTab === 'checked-out' ? checkedOutCurrentPage : unassignedCurrentPage} of {activeTab === 'checked-in' ? totalCheckedInPages : activeTab === 'checked-out' ? totalCheckedOutPages : totalUnassignedPages}
+                            Page {currentPagination.currentPage} of {currentPagination.totalPages}
                         </span>
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handlePagination('next')}
-                            disabled={isLoading || (activeTab === 'checked-in' ? checkedInCurrentPage >= totalCheckedInPages : activeTab === 'checked-out' ? checkedOutCurrentPage >= totalCheckedOutPages : unassignedCurrentPage >= totalUnassignedPages)}
+                            onClick={() => fetchGuards(activeTab as 'checked-in'|'checked-out'|'unassigned', currentPagination.next ?? undefined)}
+                            disabled={isLoading || !currentPagination.next}
                             className="w-20"
                         >
                             Next
@@ -931,3 +916,5 @@ export default function AgencyGuardsPage() {
     </>
   );
 }
+
+    

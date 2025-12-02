@@ -63,7 +63,6 @@ type PaginatedIncidentsResponse = {
     counts?: IncidentCounts; // Optional at the top level
 };
 
-const ITEMS_PER_PAGE = 10;
 
 export function IncidentsPageClient() {
   const router = useRouter();
@@ -132,10 +131,7 @@ export function IncidentsPageClient() {
       
       let fetchUrl = url;
       if (!fetchUrl) {
-        const params = new URLSearchParams({
-            page: currentPage.toString(),
-            page_size: ITEMS_PER_PAGE.toString(),
-        });
+        const params = new URLSearchParams();
         
         if (selectedStatus !== 'all') {
             if (selectedStatus === 'sos') {
@@ -181,27 +177,15 @@ export function IncidentsPageClient() {
       } finally {
         setIsLoading(false);
       }
-   }, [loggedInOrg, token, selectedStatus, searchQuery, selectedSite, selectedYear, selectedMonth, currentPage]);
+   }, [loggedInOrg, token, selectedStatus, searchQuery, selectedSite, selectedYear, selectedMonth]);
 
   useEffect(() => {
     if (loggedInOrg && token) {
       fetchIncidents();
     }
-  // Omitting fetchIncidents from deps to avoid re-running on every filter change indirectly
-  // The search-driven useEffect below will handle it.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loggedInOrg, token]);
+  }, [loggedInOrg, token, searchQuery, selectedStatus, selectedSite, selectedYear, selectedMonth, fetchIncidents]);
 
-
-  useEffect(() => {
-    setCurrentPage(1);
-    if (loggedInOrg && token) {
-        fetchIncidents();
-    }
-  }, [searchQuery, selectedStatus, selectedSite, selectedYear, selectedMonth, loggedInOrg, token]);
-
-
-  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(totalCount / 10);
 
 
   const handleStatusSelectFromSummary = (status: string) => {
@@ -433,3 +417,5 @@ export function IncidentsPageClient() {
     </div>
   );
 }
+
+    

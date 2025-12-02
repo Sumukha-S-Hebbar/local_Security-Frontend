@@ -65,7 +65,6 @@ type PaginatedIncidentsResponse = {
     counts?: IncidentCounts;
 };
 
-const ITEMS_PER_PAGE = 10;
 
 export function IncidentsPageClient() {
   const router = useRouter();
@@ -129,10 +128,7 @@ export function IncidentsPageClient() {
 
     let fetchUrl = url;
     if (!fetchUrl) {
-      const params = new URLSearchParams({
-        page: '1',
-        page_size: ITEMS_PER_PAGE.toString(),
-      });
+      const params = new URLSearchParams();
       
       if (selectedStatus !== 'all') {
          if (selectedStatus === 'sos') {
@@ -177,22 +173,15 @@ export function IncidentsPageClient() {
       } finally {
         setIsLoading(false);
       }
-  }, [loggedInOrg, token, selectedStatus, searchQuery, selectedSite, selectedYear, selectedMonth]);
+   }, [loggedInOrg, token, selectedStatus, searchQuery, selectedSite, selectedYear, selectedMonth]);
 
   useEffect(() => {
     if(loggedInOrg && token) {
       fetchIncidents();
     }
-  }, [loggedInOrg, token, fetchIncidents]);
+  }, [loggedInOrg, token, fetchIncidents, searchQuery, selectedStatus, selectedSite, selectedYear, selectedMonth]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-    if(loggedInOrg && token) {
-      fetchIncidents();
-    }
-  }, [searchQuery, selectedStatus, selectedSite, selectedYear, selectedMonth, loggedInOrg, token]);
-
-  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(totalCount / 10);
 
   const handleStatusSelectFromSummary = (status: string) => {
     const newStatus = selectedStatus === status ? 'all' : status;
@@ -425,3 +414,5 @@ export function IncidentsPageClient() {
     </div>
   );
 }
+
+    
