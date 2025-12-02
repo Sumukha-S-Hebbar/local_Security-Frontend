@@ -46,8 +46,6 @@ import { getApiBaseUrl } from '@/lib/get-api-url';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 
-const ITEMS_PER_PAGE = 10;
-
 type PaginatedAgenciesResponse = {
     count: number;
     next: string | null;
@@ -123,6 +121,7 @@ export default function TowercoAgenciesPage() {
     const [totalCount, setTotalCount] = useState(0);
     const [nextUrl, setNextUrl] = useState<string | null>(null);
     const [prevUrl, setPrevUrl] = useState<string | null>(null);
+    const [totalPages, setTotalPages] = useState(1);
     
     const [loggedInOrg, setLoggedInOrg] = useState<Organization | null>(null);
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
@@ -146,34 +145,28 @@ export default function TowercoAgenciesPage() {
     const fetchAllAgencies = useCallback(async (url?: string) => {
         if (!loggedInOrg || !token) return;
         setIsLoading(true);
-        const orgCode = loggedInOrg.code;
-
+        
         let fetchUrl = url;
         if (!fetchUrl) {
             const params = new URLSearchParams();
             if (searchQuery) params.append('search', searchQuery);
             if (selectedRegion !== 'all') params.append('region', selectedRegion);
             if (selectedCity !== 'all') params.append('city', selectedCity);
-            
-            fetchUrl = `/org/security/${orgCode}/security-agencies/list/?${params.toString()}`;
+            fetchUrl = `/org/security/${loggedInOrg.code}/security-agencies/list/?${params.toString()}`;
         }
 
         try {
             const response = await fetchData<PaginatedAgenciesResponse>(fetchUrl, token);
             
-            const fetchedAgencies = response?.results || [];
-            setSecurityAgencies(fetchedAgencies);
+            setSecurityAgencies(response?.results || []);
             setTotalCount(response?.count || 0);
             setNextUrl(response?.next || null);
             setPrevUrl(response?.previous || null);
 
-            if (fetchUrl) {
-              const urlObject = new URL(fetchUrl, getApiBaseUrl());
-              const pageParam = urlObject.searchParams.get('page');
-              setCurrentPage(pageParam ? parseInt(pageParam) : 1);
-            } else {
-              setCurrentPage(1);
-            }
+            const urlObject = new URL(fetchUrl, getApiBaseUrl());
+            const pageParam = urlObject.searchParams.get('page');
+            setCurrentPage(pageParam ? parseInt(pageParam) : 1);
+            setTotalPages(response?.count ? Math.ceil(response.count / 10) : 1);
 
         } catch (error) {
             console.error("Failed to fetch agencies:", error);
@@ -381,8 +374,6 @@ export default function TowercoAgenciesPage() {
             description: 'Agency profile Excel template has been downloaded.',
         });
     }
-
-    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
     
     const handleRowClick = (e: React.MouseEvent, agencyId: number) => {
         const agency = securityAgencies.find(a => a.id === agencyId);
@@ -771,5 +762,3 @@ export default function TowercoAgenciesPage() {
         </div>
     );
 }
-
-    

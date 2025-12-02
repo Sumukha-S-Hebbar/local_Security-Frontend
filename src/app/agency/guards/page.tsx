@@ -167,29 +167,21 @@ export default function AgencyGuardsPage() {
     if (!loggedInOrg || !token) return;
     setIsLoading(true);
     
-    const orgCode = loggedInOrg.code;
-    
     let fetchUrl = url;
     if (!fetchUrl) {
         let checkInStatus = '';
         switch(status) {
-            case 'checked-in':
-                checkInStatus = 'checked_in';
-                break;
-            case 'checked-out':
-                checkInStatus = 'checked_out';
-                break;
-            case 'unassigned':
-                checkInStatus = 'unassigned';
-                break;
+            case 'checked-in': checkInStatus = 'checked_in'; break;
+            case 'checked-out': checkInStatus = 'checked_out'; break;
+            case 'unassigned': checkInStatus = 'unassigned'; break;
         }
         
         const params = new URLSearchParams();
+        if (checkInStatus) params.append('check_in_status', checkInStatus);
         if (searchQuery) params.append('search', searchQuery);
 
-        fetchUrl = `/agency/security/${orgCode}/guards/list/?check_in_status=${checkInStatus}&${params.toString()}`;
+        fetchUrl = `/agency/security/${loggedInOrg.code}/guards/list/?${params.toString()}`;
     }
-
 
     try {
         const response = await fetchData<PaginatedGuardsResponse>(fetchUrl, token);
@@ -207,7 +199,7 @@ export default function AgencyGuardsPage() {
         const urlObject = new URL(fetchUrl, getApiBaseUrl());
         const pageParam = urlObject.searchParams.get('page');
         const currentPage = pageParam ? parseInt(pageParam) : 1;
-        const itemsPerPage = 10; // Assuming this is fixed or coming from API config
+        const itemsPerPage = 10;
 
         setPagination(prev => ({
             ...prev,
@@ -225,8 +217,7 @@ export default function AgencyGuardsPage() {
     } finally {
         setIsLoading(false);
     }
-}, [loggedInOrg, toast, searchQuery, token]);
-
+  }, [loggedInOrg, toast, searchQuery, token]);
 
   useEffect(() => {
     if (loggedInOrg && token) {
@@ -234,8 +225,7 @@ export default function AgencyGuardsPage() {
     }
   }, [loggedInOrg, token, activeTab, searchQuery, fetchGuards]);
   
-
-    const uploadForm = useForm<z.infer<typeof uploadFormSchema>>({
+  const uploadForm = useForm<z.infer<typeof uploadFormSchema>>({
     resolver: zodResolver(uploadFormSchema),
   });
   
@@ -425,7 +415,6 @@ export default function AgencyGuardsPage() {
 
   const currentPagination = pagination[activeTab];
   const currentGuards = activeTab === 'checked-in' ? checkedInGuards : activeTab === 'checked-out' ? checkedOutGuards : unassignedGuards;
-
 
   return (
     <>
@@ -916,5 +905,3 @@ export default function AgencyGuardsPage() {
     </>
   );
 }
-
-    

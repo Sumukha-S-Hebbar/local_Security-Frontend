@@ -87,6 +87,7 @@ export function IncidentsPageClient() {
   const [totalCount, setTotalCount] = useState(0);
   const [nextUrl, setNextUrl] = useState<string | null>(null);
   const [prevUrl, setPrevUrl] = useState<string | null>(null);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -169,6 +170,7 @@ export function IncidentsPageClient() {
         const urlObject = new URL(fetchUrl, getApiBaseUrl());
         const pageParam = urlObject.searchParams.get('page');
         setCurrentPage(pageParam ? parseInt(pageParam) : 1);
+        setTotalPages(data?.count ? Math.ceil(data.count / 10) : 1);
 
       } catch (error) {
         console.error("Failed to fetch filtered incidents:", error);
@@ -184,9 +186,6 @@ export function IncidentsPageClient() {
       fetchIncidents();
     }
   }, [loggedInOrg, token, searchQuery, selectedStatus, selectedSite, selectedYear, selectedMonth, fetchIncidents]);
-
-  const totalPages = Math.ceil(totalCount / 10);
-
 
   const handleStatusSelectFromSummary = (status: string) => {
     const newStatus = selectedStatus === status ? 'all' : status;
@@ -417,5 +416,3 @@ export function IncidentsPageClient() {
     </div>
   );
 }
-
-    

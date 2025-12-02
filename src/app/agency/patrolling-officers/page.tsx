@@ -70,8 +70,6 @@ type ApiPatrollingOfficer = {
     assigned_sites_details?: any[];
 };
 
-const ITEMS_PER_PAGE = 10;
-
 const uploadFormSchema = z.object({
   excelFile: z
     .any()
@@ -119,6 +117,7 @@ export default function AgencyPatrollingOfficersPage() {
     const [totalCount, setTotalCount] = useState(0);
     const [nextUrl, setNextUrl] = useState<string | null>(null);
     const [prevUrl, setPrevUrl] = useState<string | null>(null);
+    const [totalPages, setTotalPages] = useState(1);
     
     const [apiRegions, setApiRegions] = useState<ApiRegion[]>([]);
     const [apiCities, setApiCities] = useState<ApiCity[]>([]);
@@ -137,24 +136,29 @@ export default function AgencyPatrollingOfficersPage() {
      }
     }, []);
 
-    const fetchPatrollingOfficers = useCallback(async (page: number = 1) => {
+    const fetchPatrollingOfficers = useCallback(async (url?: string) => {
         if (!loggedInOrg || !token) return;
         setIsLoading(true);
         
-        const params = new URLSearchParams({
-            page: page.toString(),
-            page_size: ITEMS_PER_PAGE.toString(),
-        });
-        if (searchQuery) params.append('search', searchQuery);
-
-        const url = `/agency/security/${loggedInOrg.code}/patrol_officers/list/?${params.toString()}`;
+        let fetchUrl = url;
+        if (!fetchUrl) {
+            const params = new URLSearchParams();
+            if (searchQuery) params.append('search', searchQuery);
+            fetchUrl = `/agency/security/${loggedInOrg.code}/patrol_officers/list/?${params.toString()}`;
+        }
 
         try {
-            const data = await fetchData<PaginatedPatrollingOfficers>(url, token);
+            const data = await fetchData<PaginatedPatrollingOfficers>(fetchUrl, token);
             setPatrollingOfficers(data?.results || []);
             setTotalCount(data?.count || 0);
             setNextUrl(data?.next || null);
             setPrevUrl(data?.previous || null);
+
+            const urlObject = new URL(fetchUrl, getApiBaseUrl());
+            const pageParam = urlObject.searchParams.get('page');
+            setCurrentPage(pageParam ? parseInt(pageParam) : 1);
+            setTotalPages(data?.count ? Math.ceil(data.count / 10) : 1);
+
         } catch (error) {
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to load patrolling officers.' });
         } finally {
@@ -164,37 +168,9 @@ export default function AgencyPatrollingOfficersPage() {
 
     useEffect(() => {
         if(loggedInOrg && token) {
-            fetchPatrollingOfficers(currentPage);
+            fetchPatrollingOfficers();
         }
-    }, [loggedInOrg, token, fetchPatrollingOfficers, currentPage]);
-    
-    useEffect(() => {
-        setCurrentPage(1);
-        if (loggedInOrg) {
-            fetchPatrollingOfficers(1);
-        }
-    }, [searchQuery, loggedInOrg, fetchPatrollingOfficers]);
-
-
-    const handlePagination = useCallback(async (url: string | null) => {
-        if (!url || !loggedInOrg || !token) return;
-        setIsLoading(true);
-
-        try {
-            const data = await fetchData<PaginatedPatrollingOfficers>(url, token);
-            setPatrollingOfficers(data?.results || []);
-            setTotalCount(data?.count || 0);
-            setNextUrl(data?.next || null);
-            setPrevUrl(data?.previous || null);
-            
-            const pageParam = new URL(url).searchParams.get('page');
-            setCurrentPage(pageParam ? parseInt(pageParam) : 1);
-        } catch (error) {
-            toast({ variant: 'destructive', title: 'Error', description: 'Failed to load page.' });
-        } finally {
-            setIsLoading(false);
-        }
-    }, [loggedInOrg, toast, token]);
+    }, [loggedInOrg, token, searchQuery, fetchPatrollingOfficers]);
 
     const uploadForm = useForm<z.infer<typeof uploadFormSchema>>({
         resolver: zodResolver(uploadFormSchema),
@@ -341,8 +317,6 @@ export default function AgencyPatrollingOfficersPage() {
     const handleRowClick = (officerId: number) => {
         router.push(`/agency/patrolling-officers/${officerId}`);
     };
-
-    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
     return (
       <>
@@ -645,7 +619,7 @@ export default function AgencyPatrollingOfficersPage() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => handlePagination(prevUrl)}
+                                onClick={() => fetchPatrollingOfficers(prevUrl || undefined)}
                                 disabled={!prevUrl || isLoading}
                                 className="w-20"
                             >
@@ -655,7 +629,7 @@ export default function AgencyPatrollingOfficersPage() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => handlePagination(nextUrl)}
+                                onClick={() => fetchPatrollingOfficers(nextUrl || undefined)}
                                 disabled={!nextUrl || isLoading}
                                 className="w-20"
                             >

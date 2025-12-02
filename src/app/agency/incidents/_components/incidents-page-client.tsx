@@ -414,5 +414,3 @@ export function IncidentsPageClient() {
     </div>
   );
 }
-
-    
