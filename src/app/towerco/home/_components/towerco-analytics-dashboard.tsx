@@ -88,7 +88,7 @@ export function TowercoAnalyticsDashboard({
               className={cn(
                 'flex items-center gap-4 rounded-lg p-4 transition-all hover:shadow-md',
                 item.bg,
-                item.href !== '#' && 'cursor-pointer'
+                item.href !== '#' ? 'cursor-pointer' : 'cursor-not-allowed'
               )}
             >
               <item.icon className={cn('h-8 w-8', item.color)} />
